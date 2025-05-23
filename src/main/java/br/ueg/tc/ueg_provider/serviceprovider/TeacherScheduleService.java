@@ -19,6 +19,16 @@ public class TeacherScheduleService implements IServiceProvider {
         return List.of("Aluno");
     }
 
+    @Override
+    public Boolean isValidPersona(String persona) {
+        return getValidPersonas().contains(persona);
+    }
+
+    @Override
+    public Boolean manipulatesData() {
+        return null;
+    }
+
     public String getScheduleSByWeek(WeekDay weekDay) {
         return weekDay.toString();
     }

@@ -33,6 +33,16 @@ public class AttendanceDeclarationService implements IServiceProvider {
         return List.of("Aluno");
     }
 
+    @Override
+    public Boolean isValidPersona(String persona) {
+        return null;
+    }
+
+    @Override
+    public Boolean manipulatesData() {
+        return Boolean.TRUE;
+    }
+
     public List<AParameter> getParameters() {
         return List.of(new UserParameter());
     }

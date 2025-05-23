@@ -19,6 +19,16 @@ public class FreeAccessService implements IServiceProvider {
         return List.of("ANONIMOUS");
     }
 
+    @Override
+    public Boolean isValidPersona(String persona) {
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean manipulatesData() {
+        return Boolean.FALSE;
+    }
+
     public String getScheduleSByWeek(WeekDay weekDay) {
         return weekDay.toString();
     }

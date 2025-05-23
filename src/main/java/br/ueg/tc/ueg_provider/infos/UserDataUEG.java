@@ -1,5 +1,6 @@
 package br.ueg.tc.ueg_provider.infos;
 
+import br.ueg.tc.pipa_integrator.institutions.KeyValue;
 import br.ueg.tc.pipa_integrator.institutions.info.IUserData;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
@@ -22,6 +23,9 @@ public class UserDataUEG implements IUserData {
 
     @SerializedName("personas")
     private List<String> personas;
+
+    @SerializedName("keyValueList")
+    private List<KeyValue> keyValueList;
 
 
 }
