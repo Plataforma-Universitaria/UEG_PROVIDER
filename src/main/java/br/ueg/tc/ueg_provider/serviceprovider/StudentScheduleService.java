@@ -1,5 +1,8 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
+import br.ueg.tc.apiai.contract.client.ChatClientFactory;
+import br.ueg.tc.apiai.service.AiService;
+import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.annotations.ActivationPhrases;
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
 import br.ueg.tc.pipa_integrator.exceptions.BusinessException;
@@ -12,6 +15,7 @@ import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineSchedule;
 import br.ueg.tc.pipa_integrator.institutions.info.IUserData;
 import br.ueg.tc.pipa_integrator.serviceprovider.service.IServiceProvider;
 import br.ueg.tc.ueg_provider.UEGProvider;
+import br.ueg.tc.ueg_provider.ai.AIApi;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByDisciplineName;
 import com.google.gson.JsonArray;
@@ -26,6 +30,7 @@ import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +40,9 @@ import static br.ueg.tc.ueg_provider.UEGEndpoint.PERFIL;
 
 @Service
 public class StudentScheduleService implements IServiceProvider {
+
+    @Autowired
+    AiService<AIClient> aiService;
 
     private CookieStore httpCookieStore;
     private final HttpClientContext localContext;
@@ -141,7 +149,7 @@ public class StudentScheduleService implements IServiceProvider {
     }
 
     @ActivationPhrases(value = {"Quais minha aulas em matemática",
-            "Aula de português", "Quando é a aula de Português", "Quando é minha aula de INFRAESTRUTURA DE REDES"})
+            "Aula de português", "Quando é a aula de Português", "Quando é minha aula de INFRAESTRUTURA DE REDES", "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
     public List<IDisciplineSchedule> getScheduleByDisciplineName(String disciplineToGetSchedule){
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -166,7 +174,7 @@ public class StudentScheduleService implements IServiceProvider {
     }
 
     private String getScheduleByDisciplineNameResponse(String disciplineToGetSchedule, String entityString) {
-//        disciplineToGetSchedule = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + disciplineToGetSchedule);
+      disciplineToGetSchedule = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + disciplineToGetSchedule);
         return disciplineToGetSchedule;
     }
 }
