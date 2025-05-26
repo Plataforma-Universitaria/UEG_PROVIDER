@@ -134,7 +134,36 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<String> getAllServiceProvider() {
-        return List.of();
+        return List.of(
+
+        );
+    }
+
+    @Override
+    public List<String> getPersonas() {
+        return List.of(
+                "Student", "Teacher"
+        );
+    }
+
+    @Override
+    public String getInstitutionName() {
+        return "Universidade estadual de goiás";
+    }
+
+    @Override
+    public String getSalutationPhrase() {
+        return "Bem vindo! Faça login com os dados do ADMS";
+    }
+
+    @Override
+    public String getPasswordFieldName() {
+        return "";
+    }
+
+    @Override
+    public String getUsernameFieldName() {
+        return "";
     }
 
     public String generateNewAcademicRecordHTML() {
