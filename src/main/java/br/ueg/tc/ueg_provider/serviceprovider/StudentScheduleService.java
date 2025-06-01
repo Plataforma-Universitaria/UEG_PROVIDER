@@ -5,6 +5,7 @@ import br.ueg.tc.apiai.service.AiService;
 import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.annotations.ActivationPhrases;
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
+import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.exceptions.BusinessException;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
@@ -18,6 +19,7 @@ import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.ai.AIApi;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByDisciplineName;
+import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByWeekDay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -124,8 +126,7 @@ public class StudentScheduleService implements IServiceProvider {
         return httpResponse.getCode() == 200;
     }
 
-    @ActivationPhrases(value = {"Quais minhas aulas de segunda",
-            "Aula de terça", "Aaulas de Sábado"})
+    @ActivationPhrases(value = {"Quais minhas aulas?", "Aulas da semana"})
     public List<IDisciplineSchedule> getWeekSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -148,8 +149,36 @@ public class StudentScheduleService implements IServiceProvider {
         }
     }
 
+    @ActivationPhrases(value = {"Quais minhas aulas de segunda",
+            "Aula de terça", "Aulas de Sábado"})
+    public List<IDisciplineSchedule> getScheduleByWeekDay(String weekDay){
+        HttpGet httpGet = new HttpGet(HORARIO_AULA);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                FormatterScheduleByWeekDay formatter = new FormatterScheduleByWeekDay();
+                return formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(getWeekByValue(weekDay)),
+                        converterUEG.getDisciplinesWithScheduleFromJson
+                                ((JsonArray) JsonParser.parseString(entityString))
+                );
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horario," +
+                    " tente novamente mais tarde");
+        }
+    }
+
     @ActivationPhrases(value = {"Quais minha aulas em matemática",
-            "Aula de português", "Quando é a aula de Português", "Quando é minha aula de INFRAESTRUTURA DE REDES", "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
+            "Aula de português", "Quando é a aula de Português",
+            "Quando é minha aula de infra",
+            "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
     public List<IDisciplineSchedule> getScheduleByDisciplineName(String disciplineToGetSchedule){
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -177,4 +206,9 @@ public class StudentScheduleService implements IServiceProvider {
       disciplineToGetSchedule = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + disciplineToGetSchedule);
         return disciplineToGetSchedule;
     }
+
+    private String getWeekByValue(String weekDay) {
+        return aiService.sendPrompt(AIApi.startWeekNameQuestion + AIApi.endWeekNameQuestion + weekDay);
+    }
+
 }

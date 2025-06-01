@@ -133,16 +133,9 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     @Override
-    public List<String> getAllServiceProvider() {
-        return List.of(
-
-        );
-    }
-
-    @Override
     public List<String> getPersonas() {
         return List.of(
-                "Student", "Teacher"
+                "Aluno"
         );
     }
 
@@ -158,12 +151,12 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public String getPasswordFieldName() {
-        return "";
+        return "Senha";
     }
 
     @Override
     public String getUsernameFieldName() {
-        return "";
+        return "CPF";
     }
 
     public String generateNewAcademicRecordHTML() {
