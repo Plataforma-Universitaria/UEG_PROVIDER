@@ -7,46 +7,64 @@ import java.util.List;
 
 public interface IAIApi {
 
-    String guessMethodByRequestMessage = "Assuma que você é um processador que identifica qual serviço e método está sendo chamado em um dado texto. " +
-            "Você connhece a seguinte lista de Serviços e seus métodos: ";
+    String guessMethodByRequestMessage = """
+        Você é um classificador de comandos. Com base na mensagem do usuário, identifique qual serviço e método devem ser chamados.
+        Abaixo está a lista de serviços e métodos disponíveis:
+        """;
 
     String guessMethodByRequest(String request);
 
     String guessDisciplineNameFromIDiscipline(String disciplineIntent, List<? extends IDiscipline> disciplines);
 
-    String startDisciplineNameQuestion = "Assuma que você é um processador que identifica qual disciplina um" +
-            " texto está se referindo. As disciplinas que você conhece são: ";
+    String startDisciplineNameQuestion = """
+        Você é um processador que identifica a disciplina mencionada em um texto.
+        As disciplinas conhecidas são:
+        """;
 
-    String endDisciplineNameQuestion = "Responda retornando somente o nome da disciplina por exemplo, retorne" +
-            " Programação para dispositivos móveis para programação de celular." +
-            " Converta todo número para algarismo romano, como por exemplo: " +
-            " retorne Econometria I para Econometria 1 ou Econometria um." +
-            " Entenda também quando for fornecido apenas uma sigla, como por exemplo: " +
-            "retorne Prática interdisciplinar de aplicações em sistemas de informação I" +
-            "para piasi 1 ou PIASI 1. Caso não encontre,retorne somente a mensagem 'NENHUMA' " +
-            ".Qual a disciplina para ? ";
+    String endDisciplineNameQuestion = """
+        Retorne apenas o nome completo da disciplina mais semelhante.
+        - Corrija erros de digitação e variações, como "prog web" → "Programação para Web".
+        - Converta números para algarismos romanos: "Econometria 1" → "Econometria I".
+        - Entenda siglas: "PIASI 1" → "Prática interdisciplinar de aplicações em sistemas de informação I".
+        Se não encontrar nenhuma correspondência, retorne exatamente: 'NENHUMA'.
+        Qual é a disciplina referida no texto?
+        """;
+
+    String startWeekNameQuestion = """
+    Você é um identificador de dias da semana. Suas respostas válidas são:
+    {SEG, TER, QUA, QUI, SEX, SAB, DOM, NENHUMA}
+    
+    Considere a data de "hoje" como o dia da semana:
+    """;
+
+    String endWeekNameQuestion = """
+    Retorne apenas um dos shortnames válidos (SEG, TER, QUA, QUI, SEX, SAB, DOM) de acordo com o conteúdo da pergunta.
+    
+    Regras:
+    - Para nomes de dias ("segunda", "terça-feira", etc.), retorne o shortname correspondente: "segunda" → SEG.
+    - Para datas no formato dd/MM/yy ou dd/MM/yyyy, retorne o shortname referente ao dia da semana daquela data: "29/05/25" → QUI.
+    - Para palavras relativas ao tempo:
+        - "hoje" → shortname do dia atual.
+        - "amanhã" → shortname do dia seguinte.
+        - "ontem" → shortname do dia anterior.
+    - Para meses ou frases como "15 de abril", interprete como uma data válida.
+    
+    Caso não seja possível identificar o dia, retorne exatamente: 'NENHUMA'.
+
+    Qual é o shortname para:
+    """;
 
 
-    String startWeekNameQuestion = "Assuma que você é um processador que identifica qual o shortname de três letras dado. Cocê conhecê os seguintes dados:"
-            + "MONDAY(\"SEG\", \"Segunda-feira\"),\n" +
-            "    TUESDAY(\"TER\", \"Terça-feira\"),\n" +
-            "    WEDNESDAY(\"QUA\", \"Quarta-feira\"),\n" +
-            "    THURSDAY(\"QUI\", \"Quinta-feira\"),\n" +
-            "    FRIDAY(\"SEX\", \"Sexta-feira\"),\n" +
-            "    SATURDAY(\"SAB\", \"Sábado\"),\n" +
-            "    SUNDAY(\"DOM\", \"Domingo\");";
-
-    String endWeekNameQuestion = "Responda retornando somente o shortname do dia por exemplo, retorne" +
-            " SEG para segunda" +
-            " QUI para 29/05/25 " +
-            " Caso não encontre,retorne somente a mensagem 'NENHUMA' " +
-            ".Qual o shortname para ";
-
-    String startServiceActivationNameQuestion = "Assuma que você é um processador de serviços. Os serviços que você conhece são: ";
+    String startServiceActivationNameQuestion = """
+        Você é um processador que identifica o serviço a ser ativado.
+        Os serviços conhecidos são:
+        """;
 
     String serviceActivationProgressNameQuestion = " {servico: '{0}', nomes: [{1}]}, ";
 
-    String endServiceActivationNameQuestion = ".A partir disso responda retornando somente o nome do servico," +
-            " para qual o nome: '?' seja mais proximo dos nomes dos servicos conhecidos " +
-            "Caso não encontre similaridade em nenhum dos nomes dos servicos responda somente 'NENHUM'";
+    String endServiceActivationNameQuestion = """
+        A partir do nome informado, retorne apenas o nome do serviço mais semelhante.
+        Se não houver similaridade suficiente, retorne exatamente: 'NENHUM'.
+        Serviço correspondente ao nome:
+        """;
 }

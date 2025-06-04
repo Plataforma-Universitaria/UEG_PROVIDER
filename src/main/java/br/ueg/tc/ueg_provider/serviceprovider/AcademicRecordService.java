@@ -110,8 +110,4 @@ public class AcademicRecordService implements IServiceProvider {
         return "Houve um erro ao enviar seu Histórico Acadêmico, tente novamente mais tarde";
     }
 
-    @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Academic Service";
-    }
 }

@@ -109,8 +109,4 @@ public class AttendanceDeclarationService implements IServiceProvider {
         return "Houve um erro ao enviar sua declaração de frequência, tente novamente mais tarde";
     }
 
-    @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Declaration Service";
-    }
 }

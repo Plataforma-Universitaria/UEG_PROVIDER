@@ -10,10 +10,6 @@ import java.util.Date;
 import java.util.List;
 
 public class FreeAccessService implements IServiceProvider {
-    @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Deu certo";
-    }
 
     @Override
     public List<String> getValidPersonas() {

@@ -10,11 +10,6 @@ import java.util.List;
 
 public class TeacherScheduleService implements IServiceProvider {
     @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Deu certo";
-    }
-
-    @Override
     public List<String> getValidPersonas() {
         return List.of("Aluno");
     }

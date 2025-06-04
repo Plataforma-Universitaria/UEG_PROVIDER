@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.HORARIO_AULA;
@@ -82,11 +83,6 @@ public class StudentScheduleService implements IServiceProvider {
         }
     }
 
-    @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Deu certo";
-    }
-
     public void getPersonId() {
         acuId = getUserData().getPersonId();
     }
@@ -126,8 +122,8 @@ public class StudentScheduleService implements IServiceProvider {
         return httpResponse.getCode() == 200;
     }
 
-    @ActivationPhrases(value = {"Quais minhas aulas?", "Aulas da semana"})
-    public List<IDisciplineSchedule> getWeekSchedule() throws IntentNotSupportedException {
+    @ActivationPhrases(value = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
+    public List<IDisciplineSchedule> getAllSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -150,8 +146,8 @@ public class StudentScheduleService implements IServiceProvider {
     }
 
     @ActivationPhrases(value = {"Quais minhas aulas de segunda",
-            "Aula de terça", "Aulas de Sábado"})
-    public List<IDisciplineSchedule> getScheduleByWeekDay(String weekDay){
+            "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje", "Aulas de amanhã"})
+    public List<IDisciplineSchedule> getScheduleByDay(String day){
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -161,7 +157,8 @@ public class StudentScheduleService implements IServiceProvider {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 FormatterScheduleByWeekDay formatter = new FormatterScheduleByWeekDay();
-                return formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(getWeekByValue(weekDay)),
+                day = getWeekByValue(day);
+                return formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
                         converterUEG.getDisciplinesWithScheduleFromJson
                                 ((JsonArray) JsonParser.parseString(entityString))
                 );
@@ -208,7 +205,7 @@ public class StudentScheduleService implements IServiceProvider {
     }
 
     private String getWeekByValue(String weekDay) {
-        return aiService.sendPrompt(AIApi.startWeekNameQuestion + AIApi.endWeekNameQuestion + weekDay);
+        return aiService.sendPrompt(AIApi.startWeekNameQuestion + LocalDateTime.now() + "Data da semana: " + LocalDateTime.now().getDayOfWeek() + AIApi.endWeekNameQuestion + weekDay);
     }
 
 }
