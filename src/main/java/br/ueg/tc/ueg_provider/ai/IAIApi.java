@@ -1,6 +1,5 @@
 package br.ueg.tc.ueg_provider.ai;
 
-import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.institutions.info.IDiscipline;
 
 import java.util.List;

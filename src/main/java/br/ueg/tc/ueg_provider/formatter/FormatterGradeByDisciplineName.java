@@ -1,7 +1,6 @@
 package br.ueg.tc.ueg_provider.formatter;
 
 import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineGrade;
-import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineSchedule;
 
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
+import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.exceptions.GenericBusinessException;
 import br.ueg.tc.pipa_integrator.institutions.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
@@ -11,6 +12,7 @@ import br.ueg.tc.pipa_integrator.serviceprovider.service.IServiceProvider;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.infos.UserDataUEG;
 import br.ueg.tc.ueg_provider.serviceprovider.parameter.UserParameter;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,14 @@ import java.util.Set;
 
 import static br.ueg.tc.ueg_provider.enums.DocEnum.ATTENDANCE_DECLARATION;
 
-public class AttendanceDeclarationService implements IServiceProvider {
+@Service
+@ServiceProviderClass(personas = {"Aluno"})
+public class AttendanceDeclarationService extends InstitutionService {
+
+    public AttendanceDeclarationService() {}
+    public AttendanceDeclarationService(IUser user) {
+        super(user);
+    }
 
     public List<String> getActivationName() {
         return List.of("gerar declaração de frequência",
@@ -27,21 +36,6 @@ public class AttendanceDeclarationService implements IServiceProvider {
                 "declaração de frequencia",
                 "declaração frequencia", "declaracao frequencia");
     }
-    @Override
-    public List<String> getValidPersonas() {
-        return List.of("Aluno");
-    }
-
-    @Override
-    public Boolean isValidPersona(String persona) {
-        return null;
-    }
-
-    @Override
-    public Boolean manipulatesData() {
-        return Boolean.TRUE;
-    }
-
     public List<AParameter> getParameters() {
         return List.of(new UserParameter());
     }

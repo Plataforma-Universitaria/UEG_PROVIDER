@@ -2,7 +2,8 @@ package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.apiai.service.AiService;
 import br.ueg.tc.pipa_integrator.ai.AIClient;
-import br.ueg.tc.pipa_integrator.annotations.ActivationPhrases;
+import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
+import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.exceptions.GenericBusinessException;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
@@ -40,6 +41,7 @@ import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
 import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
 
 @Service
+@ServiceProviderClass(personas = {"Aluno"})
 public class StudentService extends InstitutionService {
 
     @Autowired
@@ -51,21 +53,6 @@ public class StudentService extends InstitutionService {
     }
     public StudentService(IUser user){
         super(user);
-    }
-
-    @Override
-    public List<String> getValidPersonas() {
-        return List.of("Aluno");
-    }
-
-    @Override
-    public Boolean isValidPersona(String persona) {
-        return getValidPersonas().contains(persona);
-    }
-
-    @Override
-    public Boolean manipulatesData() {
-        return false;
     }
 
     private boolean responseOK(CloseableHttpResponse httpResponse) {
@@ -93,7 +80,7 @@ public class StudentService extends InstitutionService {
         }
     }
 
-    @ActivationPhrases(value = {"Qual minha média geral",
+    @ServiceProviderMethod(activationPhrases = {"Qual minha média geral",
             "média geral", "qual minha nota geral", "qual a nota geral?"})
     public String getGeneralGrade() {
         getPersonId();
@@ -120,7 +107,7 @@ public class StudentService extends InstitutionService {
         }
     }
 
-    @ActivationPhrases(value = {"Qual minha nota em matemática",
+    @ServiceProviderMethod(activationPhrases = {"Qual minha nota em matemática",
             "média geral em programação", "qual minha nota em portugues"})
     public List<IDisciplineGrade> getGradeByDiscipline(String discipline) {
         getPersonId();
@@ -146,7 +133,7 @@ public class StudentService extends InstitutionService {
         }
     }
 
-    @ActivationPhrases(value = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
     public List<IDisciplineSchedule> getAllSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -169,7 +156,7 @@ public class StudentService extends InstitutionService {
         }
     }
 
-    @ActivationPhrases(value = {"Quais minhas aulas de segunda",
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas de segunda",
             "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje", "Aulas de amanhã"})
     public List<IDisciplineSchedule> getScheduleByDay(String day){
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
@@ -197,7 +184,7 @@ public class StudentService extends InstitutionService {
     }
 
 
-    @ActivationPhrases(value = {"Quais minha aulas em matemática",
+    @ServiceProviderMethod(activationPhrases = {"Quais minha aulas em matemática",
             "Aula de português", "Quando é a aula de Português",
             "Quando é minha aula de infra",
             "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
