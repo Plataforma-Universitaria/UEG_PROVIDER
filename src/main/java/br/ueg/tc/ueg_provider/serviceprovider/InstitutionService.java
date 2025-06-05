@@ -1,7 +1,5 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
-import br.ueg.tc.apiai.service.AiService;
-import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
 import br.ueg.tc.pipa_integrator.institutions.KeyValue;
 import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
@@ -16,6 +14,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+
 import java.util.List;
 
 public abstract class InstitutionService implements IServiceProvider {
@@ -59,17 +58,17 @@ public abstract class InstitutionService implements IServiceProvider {
      * Extrai dinamicamente um campo do JSON retornado pela UEG.
      *
      * @param json           JSON de entrada (string)
-     * @param campoDesejado  Campo que será extraído
+     * @param field  Campo que será extraído
      * @return valor do campo como String (ou null se não existir)
      */
-    public String extractFromJson(String json, String campoDesejado) {
+    public String extractFromJson(String json, String field) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(json);
-            JsonNode campo = rootNode.get(campoDesejado);
+            JsonNode campo = rootNode.get(field);
             return campo != null ? campo.asText() : null;
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao extrair campo do JSON: " + campoDesejado, e);
+            throw new RuntimeException("Erro ao extrair campo do JSON: " + field, e);
         }
     }
 
