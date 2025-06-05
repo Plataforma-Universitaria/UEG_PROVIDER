@@ -4,12 +4,16 @@ import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotAuthenticatedException;
+import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.institutions.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.institutions.KeyValue;
+import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
 import br.ueg.tc.pipa_integrator.institutions.info.IUserData;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import lombok.Getter;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
@@ -18,6 +22,7 @@ import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
@@ -46,6 +51,25 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
         this.converterUEG = new ConverterUEG();
     }
 
+    public UEGProvider(IUser user) {
+        setUserAccessData(user.getKeyValueList());
+        this.localContext = HttpClientContext.create();
+        this.httpClient =
+                HttpClients.custom()
+                        .setDefaultCookieStore(httpCookieStore).build();
+        this.converterUEG = new ConverterUEG();
+    }
+
+    private void setUserAccessData(List<KeyValue> keyValueList) {
+        this.httpCookieStore = new BasicCookieStore();
+        for (KeyValue accessData : keyValueList){
+            BasicClientCookie basicClientCookie = new BasicClientCookie(accessData.getKey(), accessData.getValue());
+            basicClientCookie.setDomain("www.app.ueg.br");
+            basicClientCookie.setPath("/");
+            this.httpCookieStore.addCookie(basicClientCookie);
+        }
+    }
+
     @Override
     public List<KeyValue> authenticateUser(String username, String password) throws UserNotAuthenticatedException, InstitutionComunicationException {
         HttpPost httpPost = new HttpPost(VALIDA_LOGIN);
@@ -66,24 +90,19 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     private boolean responseLoginOK(String hmtlResponse) {
-        return hmtlResponse.contains("Portal");
+        return hmtlResponse.contains("Selecione um dos sistemas");
     }
 
     private List<KeyValue> cookiesToKeyValue() {
 
-        List<KeyValue> studentAccessData = new ArrayList<>();
-        for (Cookie cookie : this.getHttpCookieStore().getCookies()){
+        List<KeyValue> userAccessData = new ArrayList<>();
+        for (Cookie cookie : this.getHttpCookieStore().getCookies()) {
             KeyValue cookies = new KeyValue();
             cookies.setKey(cookie.getName());
             cookies.setValue(cookie.getValue());
-            studentAccessData.add(cookies);
+            userAccessData.add(cookies);
         }
-        return studentAccessData;
-    }
-
-    @Override
-    public void setUserAccessData(List<KeyValue> accessData) {
-
+        return userAccessData;
     }
 
     @Override
@@ -94,12 +113,50 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public IUserData getUserData() throws IntentNotSupportedException, InstitutionComunicationException {
-        return null;
+        HttpGet httpGet = new HttpGet(PERFIL);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                return converterUEG.getUserDataFromJson(JsonParser.
+                        parseString(EntityUtils.toString(entity)));
+            }
+            throw new UserNotFoundException();
+        } catch (Throwable error) {
+            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+    }
+
+    private boolean responseOK(CloseableHttpResponse httpResponse) {
+        return httpResponse.getCode() == 200;
     }
 
     @Override
-    public List<String> getAllServiceProvider() {
-        return List.of();
+    public List<String> getPersonas() {
+        return List.of(
+                "Aluno"
+        );
+    }
+
+    @Override
+    public String getInstitutionName() {
+        return "Universidade estadual de goiás";
+    }
+
+    @Override
+    public String getSalutationPhrase() {
+        return "Bem vindo! Faça login com os dados do ADMS";
+    }
+
+    @Override
+    public String getPasswordFieldName() {
+        return "Senha";
+    }
+
+    @Override
+    public String getUsernameFieldName() {
+        return "CPF";
     }
 
     public String generateNewAcademicRecordHTML() {

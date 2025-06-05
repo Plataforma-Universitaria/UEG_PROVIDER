@@ -1,0 +1,293 @@
+package br.ueg.tc.ueg_provider.serviceprovider;
+
+import br.ueg.tc.apiai.service.AiService;
+import br.ueg.tc.pipa_integrator.ai.AIClient;
+import br.ueg.tc.pipa_integrator.annotations.ActivationPhrases;
+import br.ueg.tc.pipa_integrator.enums.WeekDay;
+import br.ueg.tc.pipa_integrator.exceptions.GenericBusinessException;
+import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
+import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
+import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
+import br.ueg.tc.pipa_integrator.institutions.IBaseInstitutionProvider;
+import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
+import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineGrade;
+import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineSchedule;
+import br.ueg.tc.pipa_integrator.institutions.info.IUserData;
+import br.ueg.tc.pipa_integrator.plataformeservice.EmailDetails;
+import br.ueg.tc.pipa_integrator.plataformeservice.IPlataformService;
+import br.ueg.tc.pipa_integrator.serviceprovider.parameters.ParameterValue;
+import br.ueg.tc.ueg_provider.UEGProvider;
+import br.ueg.tc.ueg_provider.ai.AIApi;
+import br.ueg.tc.ueg_provider.formatter.FormatterGradeByDisciplineName;
+import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByDisciplineName;
+import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByWeekDay;
+import br.ueg.tc.ueg_provider.infos.UserDataUEG;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
+import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
+
+@Service
+public class StudentService extends InstitutionService {
+
+    @Autowired
+    AiService<AIClient> aiService;
+    private String acuId;
+
+    public StudentService() {
+        super();
+    }
+    public StudentService(IUser user){
+        super(user);
+    }
+
+    @Override
+    public List<String> getValidPersonas() {
+        return List.of("Aluno");
+    }
+
+    @Override
+    public Boolean isValidPersona(String persona) {
+        return getValidPersonas().contains(persona);
+    }
+
+    @Override
+    public Boolean manipulatesData() {
+        return false;
+    }
+
+    private boolean responseOK(CloseableHttpResponse httpResponse) {
+        return httpResponse.getCode() == 200;
+    }
+
+
+    public void getPersonId() {
+        acuId = getUserData().getPersonId();
+    }
+
+    public IUserData getUserData() throws IntentNotSupportedException, InstitutionComunicationException {
+        HttpGet httpGet = new HttpGet(PERFIL);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                return converterUEG.getUserDataFromJson(JsonParser.
+                        parseString(EntityUtils.toString(entity)));
+            }
+            throw new UserNotFoundException();
+        } catch (Throwable error) {
+            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+    }
+
+    @ActivationPhrases(value = {"Qual minha média geral",
+            "média geral", "qual minha nota geral", "qual a nota geral?"})
+    public String getGeneralGrade() {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_ACADEMICOS);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+
+                String mediaGeral = extractFromJson(entityString, "media_geral");
+
+                return mediaGeral != null ?
+                        "Sua média geral é: " + mediaGeral :
+                        "Não foi possível encontrar sua média geral no sistema.";
+            } else {
+                throw new InstitutionComunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+            }
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
+        }
+    }
+
+    @ActivationPhrases(value = {"Qual minha nota em matemática",
+            "média geral em programação", "qual minha nota em portugues"})
+    public List<IDisciplineGrade> getGradeByDiscipline(String discipline) {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                FormatterGradeByDisciplineName formatter = new FormatterGradeByDisciplineName();
+                if (entityString == null || entityString.isEmpty()) return null;
+                discipline = getDisciplineNameResponse(discipline, entityString);
+                return formatter.scheduleByDisciplineName(discipline,
+                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString)));
+
+            } else {
+                throw new InstitutionComunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+            }
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
+        }
+    }
+
+    @ActivationPhrases(value = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
+    public List<IDisciplineSchedule> getAllSchedule() throws IntentNotSupportedException {
+        HttpGet httpGet = new HttpGet(HORARIO_AULA);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                return converterUEG.getDisciplinesWithScheduleFromJson
+                        ((JsonArray) JsonParser.parseString(entityString)
+                        );
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG, " +
+                        "tente novamente mais tarde");
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horario," +
+                    " tente novamente mais tarde");
+        }
+    }
+
+    @ActivationPhrases(value = {"Quais minhas aulas de segunda",
+            "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje", "Aulas de amanhã"})
+    public List<IDisciplineSchedule> getScheduleByDay(String day){
+        HttpGet httpGet = new HttpGet(HORARIO_AULA);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                FormatterScheduleByWeekDay formatter = new FormatterScheduleByWeekDay();
+                day = getWeekByValue(day);
+                return formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
+                        converterUEG.getDisciplinesWithScheduleFromJson
+                                ((JsonArray) JsonParser.parseString(entityString))
+                );
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horario," +
+                    " tente novamente mais tarde");
+        }
+    }
+
+
+    @ActivationPhrases(value = {"Quais minha aulas em matemática",
+            "Aula de português", "Quando é a aula de Português",
+            "Quando é minha aula de infra",
+            "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
+    public List<IDisciplineSchedule> getScheduleByDisciplineName(String disciplineToGetSchedule){
+        HttpGet httpGet = new HttpGet(HORARIO_AULA);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                disciplineToGetSchedule = getDisciplineNameResponse(disciplineToGetSchedule, entityString);
+                FormatterScheduleByDisciplineName formatter = new FormatterScheduleByDisciplineName();
+                return formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
+                        ((JsonArray) JsonParser.parseString(entityString))
+                );
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horário, " +
+                    "tente novamente mais tarde");
+        }
+    }
+
+    private String getDisciplineNameResponse(String discipline, String entityString) {
+      discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
+        return discipline;
+    }
+
+    private String getWeekByValue(String weekDay) {
+        return aiService.sendPrompt(AIApi.startWeekNameQuestion + LocalDateTime.now() + "Data da semana: " + LocalDateTime.now().getDayOfWeek() + AIApi.endWeekNameQuestion + weekDay);
+    }
+
+    public String doService(IBaseInstitutionProvider institution, Set<ParameterValue> parameterValues,
+                            IPlataformService plataformService) {
+
+        UserDataUEG studentData = getStudentData(parameterValues);
+
+        validateStudentEmail(studentData);
+
+        try{
+            String pdfPath = generateAcademicRecordPDF(institution, plataformService);
+
+            EmailDetails emailDetails = buildEmailDetails(studentData, pdfPath);
+
+            return sendEmail(plataformService, emailDetails);
+        } catch (RuntimeException e) {
+            throw new GenericBusinessException("Houve um erro ao enviar seu histórico acadêmico, tente novamente mais tarde");
+        }
+
+    }
+
+    private UserDataUEG getStudentData(Set<ParameterValue> parameterValues) {
+        return parameterValues.stream()
+                .findFirst()
+                .map(parameterValue -> (UserDataUEG) parameterValue.getValue())
+                .orElseThrow(() -> new GenericBusinessException
+                        ("Não foram encontrados os dados do estudante para envio do histórico acadêmico"));
+    }
+
+    private void validateStudentEmail(UserDataUEG studentData) {
+        if (Objects.isNull(studentData) ||
+                Objects.isNull(studentData.getEmail()) || studentData.getEmail().isEmpty()) {
+            throw new GenericBusinessException("Não foi encontrado o email do estudante para envio da histórico");
+        }
+    }
+
+    private String generateAcademicRecordPDF(IBaseInstitutionProvider institution, IPlataformService plataformService) {
+        String attendanceDeclarationHTML = ((UEGProvider) institution).generateNewAcademicRecordHTML();
+        return plataformService.HTMLToPDF(attendanceDeclarationHTML, ACADEMIC_RECORD.getFolderPath(),
+                ACADEMIC_RECORD.getFilePrefix());
+
+    }
+
+    private EmailDetails buildEmailDetails(UserDataUEG studentData, String pdfPath) {
+        return new EmailDetails(studentData.getFirstName(), studentData.getEmail(),
+                "HISTÓRICO ACADÊMICO UEG",
+                "Olá, segue em anexo seu Histórico Acadêmico da UEG",
+                "Histórico_Acadêmico", pdfPath);
+    }
+
+    private String sendEmail(IPlataformService plataformService, EmailDetails emailDetails) {
+        if (plataformService.sendEmailWithFileAttachment(emailDetails)) {
+            return "Seu Histórico Acadêmico foi enviado para o seu e-mail acadêmico.";
+        }
+        return "Houve um erro ao enviar seu Histórico Acadêmico, tente novamente mais tarde";
+    }
+
+
+
+}

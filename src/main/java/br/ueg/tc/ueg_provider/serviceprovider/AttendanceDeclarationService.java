@@ -1,9 +1,8 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
-import br.ueg.tc.pipa_integrator.exceptions.BusinessException;
 import br.ueg.tc.pipa_integrator.exceptions.GenericBusinessException;
 import br.ueg.tc.pipa_integrator.institutions.IBaseInstitutionProvider;
-import br.ueg.tc.pipa_integrator.institutions.info.IUserData;
+import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
 import br.ueg.tc.pipa_integrator.plataformeservice.EmailDetails;
 import br.ueg.tc.pipa_integrator.plataformeservice.IPlataformService;
 import br.ueg.tc.pipa_integrator.serviceprovider.parameters.AParameter;
@@ -31,6 +30,16 @@ public class AttendanceDeclarationService implements IServiceProvider {
     @Override
     public List<String> getValidPersonas() {
         return List.of("Aluno");
+    }
+
+    @Override
+    public Boolean isValidPersona(String persona) {
+        return null;
+    }
+
+    @Override
+    public Boolean manipulatesData() {
+        return Boolean.TRUE;
     }
 
     public List<AParameter> getParameters() {
@@ -99,8 +108,4 @@ public class AttendanceDeclarationService implements IServiceProvider {
         return "Houve um erro ao enviar sua declaração de frequência, tente novamente mais tarde";
     }
 
-    @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Declaration Service";
-    }
 }

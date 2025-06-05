@@ -10,13 +10,18 @@ import java.util.List;
 
 public class TeacherScheduleService implements IServiceProvider {
     @Override
-    public String doService(String activationPhrase, IUserData userData) throws BusinessException {
-        return "Deu certo";
+    public List<String> getValidPersonas() {
+        return List.of("Aluno");
     }
 
     @Override
-    public List<String> getValidPersonas() {
-        return List.of("Aluno");
+    public Boolean isValidPersona(String persona) {
+        return getValidPersonas().contains(persona);
+    }
+
+    @Override
+    public Boolean manipulatesData() {
+        return null;
     }
 
     public String getScheduleSByWeek(WeekDay weekDay) {
