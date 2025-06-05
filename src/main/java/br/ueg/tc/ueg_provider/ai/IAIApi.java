@@ -25,7 +25,7 @@ public interface IAIApi {
         Retorne apenas o nome completo da disciplina mais semelhante.
         - Corrija erros de digitação e variações, como "prog web" → "Programação para Web".
         - Converta números para algarismos romanos: "Econometria 1" → "Econometria I".
-        - Entenda siglas: "PIASI 1" → "Prática interdisciplinar de aplicações em sistemas de informação I".
+        - Entenda siglas: "PIASI" → "Prática interdisciplinar de aplicações em sistemas de informação".
         Se não encontrar nenhuma correspondência, retorne exatamente: 'NENHUMA'.
         Qual é a disciplina referida no texto?
         """;
