@@ -1,6 +1,6 @@
 package br.ueg.tc.ueg_provider.formatter;
 
-import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineGrade;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
-import br.ueg.tc.pipa_integrator.institutions.KeyValue;
-import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
-import br.ueg.tc.pipa_integrator.serviceprovider.service.IServiceProvider;
+import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
+import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
+import br.ueg.tc.pipa_integrator.interfaces.providers.service.IServiceProvider;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -1,8 +1,8 @@
 package br.ueg.tc.ueg_provider.serviceprovider.parameter;
 
 import br.ueg.tc.pipa_integrator.enums.ParameterType;
-import br.ueg.tc.pipa_integrator.institutions.IBaseInstitutionProvider;
-import br.ueg.tc.pipa_integrator.serviceprovider.parameters.AParameter;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
+import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.AParameter;
 
 public class UserParameter extends AParameter {
 

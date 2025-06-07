@@ -2,8 +2,7 @@ package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
-import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
-import br.ueg.tc.pipa_integrator.serviceprovider.service.IServiceProvider;
+import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 
 @ServiceProviderClass(personas = {"Convidado", "Aluno", "Professor"})
 public class FreeAccessService extends InstitutionService {

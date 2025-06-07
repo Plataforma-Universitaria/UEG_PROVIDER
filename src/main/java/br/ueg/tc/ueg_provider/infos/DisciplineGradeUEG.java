@@ -1,7 +1,7 @@
 package br.ueg.tc.ueg_provider.infos;
 
-import br.ueg.tc.pipa_integrator.institutions.info.IDetailedDisciplineGrade;
-import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineGrade;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDetailedDisciplineGrade;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package br.ueg.tc.ueg_provider.ai;
 
-import br.ueg.tc.pipa_integrator.institutions.info.IDiscipline;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDiscipline;
 
 import java.util.List;
 

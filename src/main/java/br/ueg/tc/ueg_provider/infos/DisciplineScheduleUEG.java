@@ -1,7 +1,7 @@
 package br.ueg.tc.ueg_provider.infos;
 
-import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineSchedule;
-import br.ueg.tc.pipa_integrator.institutions.info.ISchedule;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineSchedule;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.ISchedule;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
