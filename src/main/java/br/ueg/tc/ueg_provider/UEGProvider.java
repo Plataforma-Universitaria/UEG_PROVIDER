@@ -5,10 +5,10 @@ import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationE
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotAuthenticatedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
-import br.ueg.tc.pipa_integrator.institutions.IBaseInstitutionProvider;
-import br.ueg.tc.pipa_integrator.institutions.KeyValue;
-import br.ueg.tc.pipa_integrator.institutions.definations.IUser;
-import br.ueg.tc.pipa_integrator.institutions.info.IUserData;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
+import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
+import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;

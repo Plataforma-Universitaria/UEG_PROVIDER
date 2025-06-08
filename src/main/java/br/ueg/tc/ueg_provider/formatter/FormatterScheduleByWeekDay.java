@@ -1,7 +1,7 @@
 package br.ueg.tc.ueg_provider.formatter;
 
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
-import br.ueg.tc.pipa_integrator.institutions.info.IDisciplineSchedule;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineSchedule;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

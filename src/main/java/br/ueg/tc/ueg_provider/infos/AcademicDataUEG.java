@@ -1,6 +1,6 @@
 package br.ueg.tc.ueg_provider.infos;
 
-import br.ueg.tc.pipa_integrator.institutions.info.IAcademicData;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IAcademicData;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;

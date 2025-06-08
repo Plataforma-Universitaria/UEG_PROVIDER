@@ -1,7 +1,7 @@
 package br.ueg.tc.ueg_provider.converter;
 
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
-import br.ueg.tc.pipa_integrator.institutions.info.*;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.ueg_provider.dto.KeyUrl;
 import br.ueg.tc.ueg_provider.dto.Token;
 import br.ueg.tc.ueg_provider.infos.*;
