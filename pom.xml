@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <groupId>br.ueg.tc</groupId>
-    <artifactId>ueg_provider</artifactId>
+    <artifactId>UEG_PROVIDER</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>UEG_PROVIDER</name>
     <description>UEG_PROVIDER</description>
