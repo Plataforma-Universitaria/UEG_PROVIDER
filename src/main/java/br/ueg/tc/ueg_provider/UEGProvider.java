@@ -109,8 +109,32 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> refreshUserAccessData(List<KeyValue> accessData) {
-        return List.of();
+        enterPortal("Aluno");
+        return cookiesToKeyValue();
     }
+
+    private void enterPortal(String persona) {
+        System.out.println("ENTER PORTAL PERSONA: " + persona);
+        HttpGet httpGet;
+        if (persona.equals("Professor")) {
+            httpGet = new HttpGet(ENTRA_PORTAL_PROFESSOR);
+        } else {
+            httpGet = new HttpGet(ENTRA_PORTAL_ESTUDANTE);
+        }
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
+            if (responseOK(httpResponse)) {
+                getPersonId();
+            }
+        } catch (Throwable error) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    public void getPersonId() {
+        acuId = getUserData().getPersonId();
+    }
+
 
 
     @Override

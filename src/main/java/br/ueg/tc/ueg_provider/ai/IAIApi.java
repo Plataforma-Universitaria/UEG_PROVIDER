@@ -2,6 +2,7 @@ package br.ueg.tc.ueg_provider.ai;
 
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDiscipline;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IAIApi {
@@ -16,7 +17,7 @@ public interface IAIApi {
     String guessDisciplineNameFromIDiscipline(String disciplineIntent, List<? extends IDiscipline> disciplines);
 
     String startDisciplineNameQuestion = """
-        Você é um processador que identifica a disciplina mencionada em um texto.
+        Você é uma ferramenta que identifica a disciplina mencionada em um texto.
         As disciplinas conhecidas são:
         """;
 
@@ -30,14 +31,14 @@ public interface IAIApi {
         """;
 
     String startWeekNameQuestion = """
-    Você é um identificador de dias da semana. Suas respostas válidas são:
+    Você é uma ferramenta, um identificador de dias da semana. Suas respostas válidas são:
     {SEG, TER, QUA, QUI, SEX, SAB, DOM, NENHUMA}
     
-    Considere a data de "hoje" como o dia da semana:
-    """;
+    Considere o dia de hoje como o dia:
+    """ + LocalDate.now() + " e o dia da semana como o dia:" + LocalDate.now().getDayOfWeek().name();
 
     String endWeekNameQuestion = """
-    Retorne apenas um dos shortnames válidos (SEG, TER, QUA, QUI, SEX, SAB, DOM) de acordo com o conteúdo da pergunta.
+    \nRetorne apenas um dos shortnames válidos (SEG, TER, QUA, QUI, SEX, SAB, DOM) de acordo com o conteúdo da pergunta.
     
     Regras:
     - Para nomes de dias ("segunda", "terça-feira", etc.), retorne o shortname correspondente: "segunda" → SEG.

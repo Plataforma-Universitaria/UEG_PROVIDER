@@ -3,6 +3,7 @@ package br.ueg.tc.ueg_provider;
 public interface UEGEndpoint {
     String VALIDA_LOGIN = "https://www.app.ueg.br/auth/acesso/valida_login";
     String ENTRA_PORTAL_ESTUDANTE = "https://www.app.ueg.br/portal_estudante";
+    String ENTRA_PORTAL_PROFESSOR= "https://www.app.ueg.br/portal_docente";
     String PERFIL = "https://www.app.ueg.br/fenix-back-end/perfil/";
     String HORARIO_AULA = "https://www.app.ueg.br/fenix-back-end/horario_aula";
     String DADOS_DISCIPLINAS = "https://www.app.ueg.br/fenix-back-end/percurso_academico/lista_matriculas_aluno/?acu_id=";

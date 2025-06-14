@@ -217,7 +217,7 @@ public class StudentService extends InstitutionService {
     }
 
     private String getWeekByValue(String weekDay) {
-        return aiService.sendPrompt(AIApi.startWeekNameQuestion + LocalDateTime.now() + "Data da semana: " + LocalDateTime.now().getDayOfWeek() + AIApi.endWeekNameQuestion + weekDay);
+        return aiService.sendPrompt(AIApi.startWeekNameQuestion + LocalDateTime.now() + AIApi.endWeekNameQuestion + weekDay);
     }
 
     public String doService(IBaseInstitutionProvider institution, Set<ParameterValue> parameterValues,
