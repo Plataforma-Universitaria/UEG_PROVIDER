@@ -161,7 +161,7 @@ public class StudentService extends InstitutionService {
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas de segunda",
             "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje", "Aulas de amanhã"})
-    public List<IDisciplineSchedule> getScheduleByDay(String day){
+    public String getScheduleByDay(String day){
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -172,9 +172,9 @@ public class StudentService extends InstitutionService {
                 if (entityString == null || entityString.isEmpty()) return null;
                 FormatterScheduleByWeekDay formatter = new FormatterScheduleByWeekDay();
                 day = getWeekByValue(day);
-                return formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
+                return humanizeSchedule(formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
                         converterUEG.getDisciplinesWithScheduleFromJson
-                                ((JsonArray) JsonParser.parseString(entityString))
+                                ((JsonArray) JsonParser.parseString(entityString)))
                 );
             } else
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
@@ -191,7 +191,7 @@ public class StudentService extends InstitutionService {
             "Aula de português", "Quando é a aula de Português",
             "Quando é minha aula de infra",
             "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
-    public List<IDisciplineSchedule> getScheduleByDisciplineName(String disciplineToGetSchedule){
+    public String getScheduleByDisciplineName(String disciplineToGetSchedule){
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -201,8 +201,8 @@ public class StudentService extends InstitutionService {
                 if (entityString == null || entityString.isEmpty()) return null;
                 disciplineToGetSchedule = getDisciplineNameResponse(disciplineToGetSchedule, entityString);
                 FormatterScheduleByDisciplineName formatter = new FormatterScheduleByDisciplineName();
-                return formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
-                        ((JsonArray) JsonParser.parseString(entityString))
+                return humanizeSchedule(formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
+                        ((JsonArray) JsonParser.parseString(entityString)))
                 );
             } else
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
@@ -279,57 +279,56 @@ public class StudentService extends InstitutionService {
     }
 
 
-    public String humanizeSchedule(List<IDisciplineSchedule> disciplinas) {
-        StringBuilder resultado = new StringBuilder();
+    public String humanizeSchedule(List<IDisciplineSchedule> disciplineSchedules) {
+        StringBuilder result = new StringBuilder();
         DateTimeFormatter timeParser = DateTimeFormatter.ofPattern("HH:mm:ss");
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("HH:mm");
-        LocalDate dataPadrao = LocalDate.now(); // Pode ser qualquer data válida
+        LocalDate dataPattern = LocalDate.now();
 
-        for (IDisciplineSchedule disciplina : disciplinas) {
-            Map<String, List<ISchedule>> horariosPorDia = new TreeMap<>();
+        List<WeekDay> ordemDosDias = WeekDay.getWeekDaysSort();
+        for (WeekDay dia : ordemDosDias) {
+            String shortName = dia.getShortName();
+            String fullName = dia.getFullName();
 
-            for (ISchedule s : disciplina.getScheduleList()) {
-                String dia = WeekDay.getByShortName(s.getDay()).getFullName(); // Ex: "segunda-feira"
-                horariosPorDia.computeIfAbsent(dia, k -> new ArrayList<>()).add(s);
-            }
+            for (IDisciplineSchedule discipline : disciplineSchedules) {
+                List<ISchedule> daySchedule = discipline.getScheduleList().stream()
+                        .filter(s -> shortName.equalsIgnoreCase(s.getDay()))
+                        .sorted(Comparator.comparing(s -> LocalTime.parse(s.getStartTime(), timeParser)))
+                        .toList();
 
-            for (Map.Entry<String, List<ISchedule>> entrada : horariosPorDia.entrySet()) {
-                String diaSemana = entrada.getKey();
-                List<ISchedule> horarios = entrada.getValue();
+                if (daySchedule.isEmpty()) continue;
 
-                // Parse para LocalDateTime com data fictícia
-                horarios.sort(Comparator.comparing(h -> LocalDateTime.of(dataPadrao, LocalTime.parse(h.getStartTime(), timeParser))));
+                LocalDateTime inicio = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(0).getStartTime(), timeParser));
+                LocalDateTime fim = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(daySchedule.size() - 1).getEndTime(), timeParser));
 
-                LocalDateTime inicio = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(0).getStartTime(), timeParser));
-                LocalDateTime fim = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(horarios.size() - 1).getEndTime(), timeParser));
-
-                long intervaloTotal = 0;
-                for (int i = 1; i < horarios.size(); i++) {
-                    LocalDateTime fimAnterior = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(i - 1).getEndTime(), timeParser));
-                    LocalDateTime inicioAtual = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(i).getStartTime(), timeParser));
-                    long diff = Duration.between(fimAnterior, inicioAtual).toMinutes();
-                    if (diff > 0) intervaloTotal += diff;
+                long breakTime = 0;
+                for (int i = 1; i < daySchedule.size(); i++) {
+                    LocalDateTime endsBefore = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(i - 1).getEndTime(), timeParser));
+                    LocalDateTime startsAt = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(i).getStartTime(), timeParser));
+                    long diff = Duration.between(endsBefore, startsAt).toMinutes();
+                    if (diff > 0) breakTime += diff;
                 }
 
-                resultado.append(String.format(
-                        "Na %s, você tem aula de %s, com %s, das %s às %s",
-                        diaSemana,
-                        disciplina.getDisciplineName(),
-                        disciplina.getTeacherName() != null ? disciplina.getTeacherName().trim() : "professor não informado",
+                result.append(String.format(
+                        "Na *%s*, você tem aula de *%s*, com %s, das %s às %s",
+                        fullName,
+                        discipline.getDisciplineName(),
+                        discipline.getTeacherName() != null ? discipline.getTeacherName().trim() : "professor não informado",
                         inicio.format(outputFormat),
                         fim.format(outputFormat)
                 ));
 
-                if (intervaloTotal > 0) {
-                    resultado.append(String.format(" (Intervalo de %d minutos)", intervaloTotal));
+                if (breakTime > 0) {
+                    result.append(String.format(" (*Intervalo* de %d minutos)", breakTime));
                 }
 
-                resultado.append(".\n");
+                result.append(".\n\n");
             }
         }
 
-        return resultado.toString();
+        return result.toString();
     }
+
 
 
 
