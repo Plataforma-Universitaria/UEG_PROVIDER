@@ -13,6 +13,7 @@ import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineSchedule;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.ISchedule;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IPlataformService;
@@ -32,10 +33,12 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
 import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
@@ -134,7 +137,7 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
-    public List<IDisciplineSchedule> getAllSchedule() throws IntentNotSupportedException {
+    public String getAllSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -143,9 +146,9 @@ public class StudentService extends InstitutionService {
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
-                return converterUEG.getDisciplinesWithScheduleFromJson
+                return humanizeSchedule(converterUEG.getDisciplinesWithScheduleFromJson
                         ((JsonArray) JsonParser.parseString(entityString)
-                        );
+                        ));
             } else
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG, " +
                         "tente novamente mais tarde");
@@ -274,6 +277,60 @@ public class StudentService extends InstitutionService {
         }
         return "Houve um erro ao enviar seu Histórico Acadêmico, tente novamente mais tarde";
     }
+
+
+    public String humanizeSchedule(List<IDisciplineSchedule> disciplinas) {
+        StringBuilder resultado = new StringBuilder();
+        DateTimeFormatter timeParser = DateTimeFormatter.ofPattern("HH:mm:ss");
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDate dataPadrao = LocalDate.now(); // Pode ser qualquer data válida
+
+        for (IDisciplineSchedule disciplina : disciplinas) {
+            Map<String, List<ISchedule>> horariosPorDia = new TreeMap<>();
+
+            for (ISchedule s : disciplina.getScheduleList()) {
+                String dia = WeekDay.getByShortName(s.getDay()).getFullName(); // Ex: "segunda-feira"
+                horariosPorDia.computeIfAbsent(dia, k -> new ArrayList<>()).add(s);
+            }
+
+            for (Map.Entry<String, List<ISchedule>> entrada : horariosPorDia.entrySet()) {
+                String diaSemana = entrada.getKey();
+                List<ISchedule> horarios = entrada.getValue();
+
+                // Parse para LocalDateTime com data fictícia
+                horarios.sort(Comparator.comparing(h -> LocalDateTime.of(dataPadrao, LocalTime.parse(h.getStartTime(), timeParser))));
+
+                LocalDateTime inicio = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(0).getStartTime(), timeParser));
+                LocalDateTime fim = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(horarios.size() - 1).getEndTime(), timeParser));
+
+                long intervaloTotal = 0;
+                for (int i = 1; i < horarios.size(); i++) {
+                    LocalDateTime fimAnterior = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(i - 1).getEndTime(), timeParser));
+                    LocalDateTime inicioAtual = LocalDateTime.of(dataPadrao, LocalTime.parse(horarios.get(i).getStartTime(), timeParser));
+                    long diff = Duration.between(fimAnterior, inicioAtual).toMinutes();
+                    if (diff > 0) intervaloTotal += diff;
+                }
+
+                resultado.append(String.format(
+                        "Na %s, você tem aula de %s, com %s, das %s às %s",
+                        diaSemana,
+                        disciplina.getDisciplineName(),
+                        disciplina.getTeacherName() != null ? disciplina.getTeacherName().trim() : "professor não informado",
+                        inicio.format(outputFormat),
+                        fim.format(outputFormat)
+                ));
+
+                if (intervaloTotal > 0) {
+                    resultado.append(String.format(" (Intervalo de %d minutos)", intervaloTotal));
+                }
+
+                resultado.append(".\n");
+            }
+        }
+
+        return resultado.toString();
+    }
+
 
 
 
