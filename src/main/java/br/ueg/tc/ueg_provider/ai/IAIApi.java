@@ -22,13 +22,14 @@ public interface IAIApi {
         """;
 
     String endDisciplineNameQuestion = """
-        Retorne apenas o nome completo da disciplina mais semelhante.
-        - Corrija erros de digitação e variações, como "prog web" → "Programação para Web".
-        - Converta números para algarismos romanos: "Econometria 1" → "Econometria I".
-        - Entenda siglas: "PIASI" → "Prática interdisciplinar de aplicações em sistemas de informação".
-        Se não encontrar nenhuma correspondência, retorne exatamente: 'NENHUMA'.
-        Qual é a disciplina referida no texto?
-        """;
+            Retorne o nome completo mais próximo:
+            - Corrija erros: "prog web" → "Programação para Web"
+            - Use algarismos romanos: "Econometria 1" → "Econometria I"
+            - Decodifique siglas: "PIASI" → "Prática Interdisciplinar..."
+            Se nenhuma for compatível, retorne: 'NENHUMA'.
+            Qual é a disciplina?
+            """;
+
 
     String startWeekNameQuestion = """
     Você é uma ferramenta, um identificador de dias da semana. Suas respostas válidas são:
@@ -39,11 +40,11 @@ public interface IAIApi {
 
     String endWeekNameQuestion = """
     \nRetorne apenas um dos shortnames válidos (SEG, TER, QUA, QUI, SEX, SAB, DOM) de acordo com o conteúdo da pergunta.
-    
     Regras:
-    - Para nomes de dias ("segunda", "terça-feira", etc.), retorne o shortname correspondente: "segunda" → SEG.
+    - Para nomes de dias ("segunda", "terça-feira", etc.), retorne o shortname correspondente:
+     Exemplo:
+        - segunda → SEG
         - domingo -> DOM
-        - segunda -> SEG
     - Para datas no formato dd/MM/yy ou dd/MM/yyyy, retorne o shortname referente ao dia da semana daquela data: "29/05/25" → QUI.
     - Para palavras relativas ao tempo:
         - "hoje" → shortname do dia atual.

@@ -84,7 +84,7 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha média geral",
-            "média geral", "qual minha nota geral", "qual a nota geral?"})
+            "média geral", "qual minha nota geral", "média", "qual a nota geral?"})
     public String getGeneralGrade() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_ACADEMICOS);
