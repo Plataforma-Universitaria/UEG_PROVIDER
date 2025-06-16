@@ -42,6 +42,8 @@ public interface IAIApi {
     
     Regras:
     - Para nomes de dias ("segunda", "terça-feira", etc.), retorne o shortname correspondente: "segunda" → SEG.
+        - domingo -> DOM
+        - segunda -> SEG
     - Para datas no formato dd/MM/yy ou dd/MM/yyyy, retorne o shortname referente ao dia da semana daquela data: "29/05/25" → QUI.
     - Para palavras relativas ao tempo:
         - "hoje" → shortname do dia atual.
