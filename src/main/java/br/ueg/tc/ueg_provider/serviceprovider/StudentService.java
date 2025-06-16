@@ -172,6 +172,10 @@ public class StudentService extends InstitutionService {
                 if (entityString == null || entityString.isEmpty()) return null;
                 FormatterScheduleByWeekDay formatter = new FormatterScheduleByWeekDay();
                 day = getWeekByValue(day);
+                if(Objects.equals(day, "NENHUMA"))
+                {
+                    return "Você não tem aulas nesse dia";
+                }
                 return humanizeSchedule(formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
                         converterUEG.getDisciplinesWithScheduleFromJson
                                 ((JsonArray) JsonParser.parseString(entityString)))
@@ -200,6 +204,10 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 disciplineToGetSchedule = getDisciplineNameResponse(disciplineToGetSchedule, entityString);
+                if(Objects.equals(disciplineToGetSchedule, "NENHUMA"))
+                {
+                    return "Você não tem aulas dessa matéria";
+                }
                 FormatterScheduleByDisciplineName formatter = new FormatterScheduleByDisciplineName();
                 return humanizeSchedule(formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
                         ((JsonArray) JsonParser.parseString(entityString)))
