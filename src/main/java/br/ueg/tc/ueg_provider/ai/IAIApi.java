@@ -25,7 +25,7 @@ public interface IAIApi {
             Retorne o nome completo mais próximo:
             - Corrija erros: "prog web" → "Programação para Web"
             - Use algarismos romanos: "Econometria 1" → "Econometria I"
-            - Decodifique siglas: "PIASI" → "Prática Interdisciplinar..."
+            - Decodifique siglas: "PIASI" → "Prática Interdisciplinar..." "prog" -> "programação" "mobile" -> dispositivos móveis
             Se nenhuma for compatível, retorne: 'NENHUMA'.
             Qual é a disciplina?
             """;
@@ -36,10 +36,10 @@ public interface IAIApi {
     {SEG, TER, QUA, QUI, SEX, SAB, DOM, NENHUMA}
     
     Considere o dia de hoje como o dia:
-    """ + LocalDate.now() + " e o dia da semana como o dia:" + LocalDate.now().getDayOfWeek().name();
+    """ + LocalDate.now() + " e o dia da semana como o dia:" + LocalDate.now().getDayOfWeek().name() + " O ano atual é : " + LocalDate.now().getYear();
 
     String endWeekNameQuestion = """
-    \nRetorne apenas um dos shortnames válidos (SEG, TER, QUA, QUI, SEX, SAB, DOM) de acordo com o conteúdo da pergunta.
+    Retorne apenas um dos shortnames válidos (SEG, TER, QUA, QUI, SEX, SAB, DOM) de acordo com o conteúdo da pergunta.
     Regras:
     - Para nomes de dias ("segunda", "terça-feira", etc.), retorne o shortname correspondente:
      Exemplo:
