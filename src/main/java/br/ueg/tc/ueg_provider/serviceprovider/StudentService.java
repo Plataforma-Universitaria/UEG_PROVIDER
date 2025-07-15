@@ -222,6 +222,15 @@ public class StudentService extends InstitutionService {
         }
     }
 
+    @ServiceProviderMethod(activationPhrases = {
+            "Ajuda",
+            "O que você pode fazer",
+            "O que posso fazer",
+            "Funcionalidades"})
+    public String getAllFunctionalities(){
+        return "Consultar:\n *Aulas*\n*Notas*";
+    }
+
     private String getDisciplineNameResponse(String discipline, String entityString) {
       discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
         return discipline;
