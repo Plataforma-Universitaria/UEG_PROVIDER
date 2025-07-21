@@ -19,6 +19,9 @@ public class DisciplineScheduleUEG implements IDisciplineSchedule {
     @SerializedName("disciplina")
     private String disciplineName;
 
+    @SerializedName("sit_desc")
+    private String status;
+
     @ToString.Exclude
     private List<ISchedule> scheduleList;
 

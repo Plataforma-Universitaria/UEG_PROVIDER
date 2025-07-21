@@ -23,6 +23,9 @@ public class DisciplineGradeUEG implements IDisciplineGrade {
     @SerializedName("periodo_grade")
     private String semester;
 
+    @SerializedName("sit_desc")
+    private String status;
+
     @ToString.Exclude
     private List<IDetailedDisciplineGrade> detailedGrades;
 

@@ -160,6 +160,29 @@ public class ConverterUEG implements IConverterInstitution {
     }
 
 
+    public List<ComplementaryActivityUEG> getComplementaryActivitiesFromJson(JsonElement jsonElement){
+        if (jsonElement == null || !jsonElement.isJsonObject()) {
+            return null;
+        }
+
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        JsonArray jsonArray = jsonObject.getAsJsonArray("lista");
+
+        if (isNullOrEmpty(jsonArray))
+            return null;
+
+        List<ComplementaryActivityUEG> list = new ArrayList<>();
+
+        for (JsonElement element : jsonArray) {
+            ComplementaryActivityUEG act = gson.fromJson(element, ComplementaryActivityUEG.class);
+            list.add(act);
+        }
+
+        return list;
+    }
+
+
+
     /**
      * Recebe um json e retorna os dados da pessoa logada
      * @param jsonElement json com os dados do estudante
@@ -168,6 +191,21 @@ public class ConverterUEG implements IConverterInstitution {
     @Override
     public IUserData getUserDataFromJson(JsonElement jsonElement) {
         return gson.fromJson(jsonElement, UserDataUEG.class);
+    }
+
+    @Override
+    public List<IDiscipline> getDisciplinesFromJson(JsonArray jsonArray) {
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<IDiscipline> disciplineSimpleDataList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            DisciplineSimpleDataUEG disciplineSimpleDataUEG = gson.fromJson(jsonElement, DisciplineSimpleDataUEG.class);
+            disciplineSimpleDataList.add(disciplineSimpleDataUEG);
+        }
+
+        return disciplineSimpleDataList;
     }
 
     public KeyUrl getKeyUrlFromJson(JsonElement jsonElement){

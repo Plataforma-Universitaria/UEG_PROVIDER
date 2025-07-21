@@ -22,7 +22,7 @@ public abstract class InstitutionService implements IServiceProvider {
     protected CookieStore httpCookieStore;
     protected final HttpClientContext localContext;
     protected final CloseableHttpClient httpClient;
-    protected final IConverterInstitution converterUEG;
+    protected final ConverterUEG converterUEG;
     protected final UEGProvider uegProvider;
 
     public InstitutionService() {

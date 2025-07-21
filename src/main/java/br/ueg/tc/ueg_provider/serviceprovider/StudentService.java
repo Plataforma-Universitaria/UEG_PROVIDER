@@ -11,18 +11,14 @@ import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineSchedule;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.ISchedule;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IPlataformService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.ai.AIApi;
-import br.ueg.tc.ueg_provider.formatter.FormatterGradeByDisciplineName;
-import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByDisciplineName;
-import br.ueg.tc.ueg_provider.formatter.FormatterScheduleByWeekDay;
+import br.ueg.tc.ueg_provider.formatter.Formatter;
+import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
 import br.ueg.tc.ueg_provider.infos.UserDataUEG;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
@@ -121,10 +117,10 @@ public class StudentService extends InstitutionService {
 
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
-                FormatterGradeByDisciplineName formatter = new FormatterGradeByDisciplineName();
+                Formatter formatter = new Formatter();
                 if (entityString == null || entityString.isEmpty()) return null;
                 discipline = getDisciplineNameResponse(discipline, entityString);
-                return formatter.scheduleByDisciplineName(discipline,
+                return formatter.disciplineGradeByDisciplineName(discipline,
                         converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString)));
 
             } else {
@@ -135,6 +131,33 @@ public class StudentService extends InstitutionService {
             throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
         }
     }
+
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas notas do primeiro semestre",
+            "notas do periodo 7", "3° periodo notas"})
+    public List<IDisciplineGrade> getGradesBySemester(String semester) {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                Formatter formatter = new Formatter();
+                if (entityString == null || entityString.isEmpty()) return null;
+                return formatter.disciplineGradeBySemester(semester,
+                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString)));
+
+            } else {
+                throw new InstitutionComunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+            }
+
+        } catch (Exception error) {
+            throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
+        }
+    }
+
+
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
     public String getAllSchedule() throws IntentNotSupportedException {
@@ -170,7 +193,7 @@ public class StudentService extends InstitutionService {
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
-                FormatterScheduleByWeekDay formatter = new FormatterScheduleByWeekDay();
+                Formatter formatter = new Formatter();
                 day = getWeekByValue(day);
                 if(Objects.equals(day, "NENHUMA"))
                 {
@@ -208,7 +231,7 @@ public class StudentService extends InstitutionService {
                 {
                     return "Você não tem aulas dessa matéria";
                 }
-                FormatterScheduleByDisciplineName formatter = new FormatterScheduleByDisciplineName();
+                Formatter formatter = new Formatter();
                 return humanizeSchedule(formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
                         ((JsonArray) JsonParser.parseString(entityString)))
                 );
@@ -228,8 +251,137 @@ public class StudentService extends InstitutionService {
             "O que posso fazer",
             "Funcionalidades"})
     public String getAllFunctionalities(){
-        return "Consultar:\n *Aulas*\n*Notas*";
+        return "Consultar:\n * Aulas *\n* Notas *\n* Faltas *";
     }
+
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português", "Quais minhas faltas em matematica", "Faltas em biologia II"})
+    public String getAbsencesByDiscipline(String discipline){
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
+        try{
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                discipline = getDisciplineNameResponse(discipline, entityString);
+                if(Objects.equals(discipline, "NENHUMA"))
+                {
+                    return "Você não tem notas nessa matéria";
+                }
+                Formatter formatter = new Formatter();
+                return humanizeAbsence(formatter.absencesByDisciplineName(discipline,
+                        converterUEG.getDisciplinesWithAbsencesFromJson(
+                        ((JsonArray) JsonParser.parseString(entityString)))
+                ));
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+
+        }catch (Exception error) {
+            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+
+    }
+
+    @ServiceProviderMethod(activationPhrases = {"Quais materias ja fiz", "materias concluidas", "Disciplinas completas"})
+    public String getCompletedCourses() {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
+        try{
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                Formatter formatter = new Formatter();
+                return humanizeDiscipline(formatter.disciplineByStatus("aprovado",
+                        converterUEG.getDisciplinesFromJson(
+                                ((JsonArray) JsonParser.parseString(entityString)))
+                ));
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+
+        }catch (Exception error) {
+            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+
+    }
+
+    private String humanizeDiscipline(List<IDiscipline> disciplines) {
+        StringBuilder stringBuilder = new StringBuilder();
+        disciplines.forEach(discipline -> {
+            stringBuilder.append("Disciplinas: \n")
+                    .append(discipline.getDisciplineName())
+                    .append("\n");
+        });
+        return stringBuilder.toString();
+
+    }
+
+    @ServiceProviderMethod(activationPhrases = {"Atividades complementares", "Como estão minhas atividades complementares", "status das atividades complementares"})
+    public String getComplementaryActivities() {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_ATV_COMPLEMENTARES + acuId + "&page=1&rows_limit=1000&sort_by=&descending=f");
+        try{
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                return humanizeComplementaryActivities(
+                        converterUEG.getComplementaryActivitiesFromJson(
+                                (JsonParser.parseString(entityString)))
+                );
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+
+        }catch (Exception error) {
+            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+
+    }
+
+    private String humanizeComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        complementaryActivities.forEach(complementaryActivity -> {
+           stringBuilder.append(complementaryActivity.getModality())
+                   .append("\n")
+                   .append(complementaryActivity.getStartDate())
+                   .append(" - ")
+                   .append(complementaryActivity.getEndDate())
+                   .append(" - ")
+                   .append(" - ")
+                   .append(complementaryActivity.getStatus())
+                   .append(Objects.isNull(
+                           complementaryActivity.getDescription())? "-" : complementaryActivity.getDescription())
+                   .append("\n");
+
+        });
+        return stringBuilder.toString();
+    }
+
+    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getCompletedCourses' para listar as disciplinas já cursadas.
+    // A funcionalidade atual envia o histórico por e-mail, mas uma consulta direta na interface seria útil.
+    // Pode-se extrair essa informação do endpoint 'DADOS_DISCIPLINAS' e formatar a resposta.
+    // Adicionar @ServiceProviderMethod com frases como "quais matérias eu já fiz?", "disciplinas cursadas".
+
+    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getComplementaryActivities' para consultar o status das atividades complementares.
+    // Necessitará de um novo endpoint da API da UEG.
+    // Adicionar @ServiceProviderMethod com frases como "minhas atividades complementares", "quantas horas complementares eu tenho?".
+
+    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getExtensionActivities' para consultar as atividades de extensão.
+    // Necessitará de um novo endpoint da API da UEG.
+    // Adicionar @ServiceProviderMethod com frases como "minhas atividades de extensão", "ver projetos de extensão que participei".
+
+
+    //Métodos internos
 
     private String getDisciplineNameResponse(String discipline, String entityString) {
       discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
@@ -344,6 +496,24 @@ public class StudentService extends InstitutionService {
         }
 
         return result.toString();
+    }
+
+
+    private String humanizeAbsence(List<IDisciplineAbsence> iDisciplineAbsences) {
+        StringBuilder absences = new StringBuilder();
+        iDisciplineAbsences.forEach(absence -> {
+            absences.append("Em ")
+                    .append(absence.getDisciplineName())
+                    .append(":\n")
+                    .append("Total de Faltas: ")
+                    .append(absence.getTotalAbsence())
+                    .append("\nAbonadas: ")
+                    .append(absence.getTotalExcusedAbsences())
+                    .append("\nPercentual de presença: ")
+                    .append(absence.getPercentPresence())
+                    .append("%").append("\n");
+        });
+        return absences.toString();
     }
 
 
