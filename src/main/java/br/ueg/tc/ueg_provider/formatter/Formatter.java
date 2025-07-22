@@ -1,15 +1,18 @@
 package br.ueg.tc.ueg_provider.formatter;
 
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDiscipline;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineAbsence;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineSchedule;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Formatter {
 
@@ -46,7 +49,7 @@ public class Formatter {
         return null;
     }
 
-    private HashMap<String, List<IDisciplineSchedule>> doWeeklyClassSchedule(List<IDisciplineSchedule> disciplineList) {
+    public HashMap<String, List<IDisciplineSchedule>> doWeeklyClassSchedule(List<IDisciplineSchedule> disciplineList) {
 
         if (Objects.isNull(disciplineList) || disciplineList.isEmpty()){
             return null;
@@ -68,7 +71,7 @@ public class Formatter {
         return weeklyClassSchedule;
     }
 
-    private static List<IDisciplineSchedule> sortDisciplinesByDayAndStartHourClass(String dayShortName, Map<String, List<IDisciplineSchedule>> disciplineList) {
+    public static List<IDisciplineSchedule> sortDisciplinesByDayAndStartHourClass(String dayShortName, Map<String, List<IDisciplineSchedule>> disciplineList) {
 
         if (Objects.isNull(disciplineList) || disciplineList.isEmpty())
             return new ArrayList<IDisciplineSchedule>();
@@ -112,5 +115,120 @@ public class Formatter {
         }
         return null;
     }
+
+
+    public String humanizeDiscipline(List<IDiscipline> disciplines) {
+        StringBuilder stringBuilder = new StringBuilder();
+        disciplines.forEach(discipline -> {
+            stringBuilder.append("Disciplinas: \n")
+                    .append(discipline.getDisciplineName())
+                    .append("\n");
+        });
+        return stringBuilder.toString();
+
+    }
+    public String humanizeComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
+        if (complementaryActivities == null || complementaryActivities.isEmpty()) {
+            return "Nenhuma atividade complementar encontrada.";
+        }
+
+        Map<String, List<ComplementaryActivityUEG>> groupedByModality = complementaryActivities.stream()
+                .collect(Collectors.groupingBy(ComplementaryActivityUEG::getModality));
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        groupedByModality.forEach((modality, activities) -> {
+            stringBuilder.append("Modalidade: ").append(modality).append("\n");
+
+            activities.forEach(activity -> {
+                stringBuilder.append("Status: ")
+                        .append(Objects.toString(activity.getHomolApproved(), "-").equals("t") ? "Aprovado" : "Pendente" ).append(" \n ")
+                        .append("Horas Solicitadas: ")
+                        .append(Objects.toString(activity.getSolicitedHours(), "-")).append("\n")
+                        .append("Horas Aprovadas: ")
+                        .append(Objects.toString(activity.getApprovedHours(), "-")).append("\n")
+                        .append("Data de solicitação: ")
+                        .append(activity.getSolicitedDate()).append("\n")
+                        .append("Descrição: ")
+                        .append(Objects.toString(activity.getDescription(), "-")).append("\n");
+            });
+
+            stringBuilder.append("\n");
+        });
+
+        return stringBuilder.toString().trim();
+    }
+
+    public String humanizeSchedule(List<IDisciplineSchedule> disciplineSchedules) {
+        StringBuilder result = new StringBuilder();
+        DateTimeFormatter timeParser = DateTimeFormatter.ofPattern("HH:mm:ss");
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDate dataPattern = LocalDate.now();
+
+        List<WeekDay> ordemDosDias = WeekDay.getWeekDaysSort();
+        for (WeekDay dia : ordemDosDias) {
+            String shortName = dia.getShortName();
+            String fullName = dia.getFullName();
+
+            for (IDisciplineSchedule discipline : disciplineSchedules) {
+                List<ISchedule> daySchedule = discipline.getScheduleList().stream()
+                        .filter(s -> shortName.equalsIgnoreCase(s.getDay()))
+                        .sorted(Comparator.comparing(s -> LocalTime.parse(s.getStartTime(), timeParser)))
+                        .toList();
+
+                if (daySchedule.isEmpty()) continue;
+
+                LocalDateTime inicio = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(0).getStartTime(), timeParser));
+                LocalDateTime fim = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(daySchedule.size() - 1).getEndTime(), timeParser));
+
+                long breakTime = 0;
+                for (int i = 1; i < daySchedule.size(); i++) {
+                    LocalDateTime endsBefore = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(i - 1).getEndTime(), timeParser));
+                    LocalDateTime startsAt = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(i).getStartTime(), timeParser));
+                    long diff = Duration.between(endsBefore, startsAt).toMinutes();
+                    if (diff > 0) breakTime += diff;
+                }
+
+                result.append(String.format(
+                        "Na *%s*, você tem aula de *%s*, com %s, das %s às %s",
+                        fullName,
+                        discipline.getDisciplineName(),
+                        discipline.getTeacherName() != null ? discipline.getTeacherName().trim() : "professor não informado",
+                        inicio.format(outputFormat),
+                        fim.format(outputFormat)
+                ));
+
+                if (breakTime > 0) {
+                    result.append(String.format(" (*Intervalo* de %d minutos)", breakTime));
+                }
+
+                result.append(".\n\n");
+            }
+        }
+
+        return result.toString();
+    }
+
+
+    public String humanizeAbsence(List<IDisciplineAbsence> iDisciplineAbsences) {
+        StringBuilder absences = new StringBuilder();
+        iDisciplineAbsences.forEach(absence -> {
+            absences.append(absence.getDisciplineName())
+                    .append(":\n")
+                    .append("Total de Faltas: ")
+                    .append(absence.getTotalAbsence())
+                    .append("\nAbonadas: ")
+                    .append(absence.getTotalExcusedAbsences())
+                    .append("\nPercentual de presença: ")
+                    .append(absence.getPercentPresence())
+                    .append("%").append("\n");
+        });
+        return absences.toString();
+    }
+
+
+
+
+
 
 }

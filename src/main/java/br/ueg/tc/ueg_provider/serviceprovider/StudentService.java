@@ -169,7 +169,8 @@ public class StudentService extends InstitutionService {
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
-                return humanizeSchedule(converterUEG.getDisciplinesWithScheduleFromJson
+                Formatter formatter = new Formatter();
+                return formatter.humanizeSchedule(converterUEG.getDisciplinesWithScheduleFromJson
                         ((JsonArray) JsonParser.parseString(entityString)
                         ));
             } else
@@ -199,7 +200,7 @@ public class StudentService extends InstitutionService {
                 {
                     return "Você não tem aulas nesse dia";
                 }
-                return humanizeSchedule(formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
+                return formatter.humanizeSchedule(formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
                         converterUEG.getDisciplinesWithScheduleFromJson
                                 ((JsonArray) JsonParser.parseString(entityString)))
                 );
@@ -232,7 +233,7 @@ public class StudentService extends InstitutionService {
                     return "Você não tem aulas dessa matéria";
                 }
                 Formatter formatter = new Formatter();
-                return humanizeSchedule(formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
+                return formatter.humanizeSchedule(formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
                         ((JsonArray) JsonParser.parseString(entityString)))
                 );
             } else
@@ -270,7 +271,7 @@ public class StudentService extends InstitutionService {
                     return "Você não tem notas nessa matéria";
                 }
                 Formatter formatter = new Formatter();
-                return humanizeAbsence(formatter.absencesByDisciplineName(discipline,
+                return formatter.humanizeAbsence(formatter.absencesByDisciplineName(discipline,
                         converterUEG.getDisciplinesWithAbsencesFromJson(
                         ((JsonArray) JsonParser.parseString(entityString)))
                 ));
@@ -296,7 +297,7 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 Formatter formatter = new Formatter();
-                return humanizeDiscipline(formatter.disciplineByStatus("aprovado",
+                return formatter.humanizeDiscipline(formatter.disciplineByStatus("aprovado",
                         converterUEG.getDisciplinesFromJson(
                                 ((JsonArray) JsonParser.parseString(entityString)))
                 ));
@@ -311,16 +312,7 @@ public class StudentService extends InstitutionService {
 
     }
 
-    private String humanizeDiscipline(List<IDiscipline> disciplines) {
-        StringBuilder stringBuilder = new StringBuilder();
-        disciplines.forEach(discipline -> {
-            stringBuilder.append("Disciplinas: \n")
-                    .append(discipline.getDisciplineName())
-                    .append("\n");
-        });
-        return stringBuilder.toString();
-
-    }
+    
 
     @ServiceProviderMethod(activationPhrases = {"Atividades complementares", "Como estão minhas atividades complementares", "status das atividades complementares"})
     public String getComplementaryActivities() {
@@ -332,7 +324,8 @@ public class StudentService extends InstitutionService {
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
-                return humanizeComplementaryActivities(
+                Formatter formatter = new Formatter();
+                return formatter.humanizeComplementaryActivities(
                         converterUEG.getComplementaryActivitiesFromJson(
                                 (JsonParser.parseString(entityString)))
                 );
@@ -346,26 +339,7 @@ public class StudentService extends InstitutionService {
         }
 
     }
-
-    private String humanizeComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        complementaryActivities.forEach(complementaryActivity -> {
-           stringBuilder.append(complementaryActivity.getModality())
-                   .append("\n")
-                   .append(complementaryActivity.getStartDate())
-                   .append(" - ")
-                   .append(complementaryActivity.getEndDate())
-                   .append(" - ")
-                   .append(" - ")
-                   .append(complementaryActivity.getStatus())
-                   .append(Objects.isNull(
-                           complementaryActivity.getDescription())? "-" : complementaryActivity.getDescription())
-                   .append("\n");
-
-        });
-        return stringBuilder.toString();
-    }
+    
 
     //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getCompletedCourses' para listar as disciplinas já cursadas.
     // A funcionalidade atual envia o histórico por e-mail, mas uma consulta direta na interface seria útil.
@@ -390,25 +364,6 @@ public class StudentService extends InstitutionService {
 
     private String getWeekByValue(String weekDay) {
         return aiService.sendPrompt(AIApi.startWeekNameQuestion + LocalDateTime.now() + AIApi.endWeekNameQuestion + weekDay);
-    }
-
-    public String doService(IBaseInstitutionProvider institution, Set<ParameterValue> parameterValues,
-                            IPlataformService plataformService) {
-
-        UserDataUEG studentData = getStudentData(parameterValues);
-
-        validateStudentEmail(studentData);
-
-        try{
-            String pdfPath = generateAcademicRecordPDF(institution, plataformService);
-
-            EmailDetails emailDetails = buildEmailDetails(studentData, pdfPath);
-
-            return sendEmail(plataformService, emailDetails);
-        } catch (RuntimeException e) {
-            throw new GenericBusinessException("Houve um erro ao enviar seu histórico acadêmico, tente novamente mais tarde");
-        }
-
     }
 
     private UserDataUEG getStudentData(Set<ParameterValue> parameterValues) {
@@ -446,78 +401,5 @@ public class StudentService extends InstitutionService {
         }
         return "Houve um erro ao enviar seu Histórico Acadêmico, tente novamente mais tarde";
     }
-
-
-    public String humanizeSchedule(List<IDisciplineSchedule> disciplineSchedules) {
-        StringBuilder result = new StringBuilder();
-        DateTimeFormatter timeParser = DateTimeFormatter.ofPattern("HH:mm:ss");
-        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("HH:mm");
-        LocalDate dataPattern = LocalDate.now();
-
-        List<WeekDay> ordemDosDias = WeekDay.getWeekDaysSort();
-        for (WeekDay dia : ordemDosDias) {
-            String shortName = dia.getShortName();
-            String fullName = dia.getFullName();
-
-            for (IDisciplineSchedule discipline : disciplineSchedules) {
-                List<ISchedule> daySchedule = discipline.getScheduleList().stream()
-                        .filter(s -> shortName.equalsIgnoreCase(s.getDay()))
-                        .sorted(Comparator.comparing(s -> LocalTime.parse(s.getStartTime(), timeParser)))
-                        .toList();
-
-                if (daySchedule.isEmpty()) continue;
-
-                LocalDateTime inicio = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(0).getStartTime(), timeParser));
-                LocalDateTime fim = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(daySchedule.size() - 1).getEndTime(), timeParser));
-
-                long breakTime = 0;
-                for (int i = 1; i < daySchedule.size(); i++) {
-                    LocalDateTime endsBefore = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(i - 1).getEndTime(), timeParser));
-                    LocalDateTime startsAt = LocalDateTime.of(dataPattern, LocalTime.parse(daySchedule.get(i).getStartTime(), timeParser));
-                    long diff = Duration.between(endsBefore, startsAt).toMinutes();
-                    if (diff > 0) breakTime += diff;
-                }
-
-                result.append(String.format(
-                        "Na *%s*, você tem aula de *%s*, com %s, das %s às %s",
-                        fullName,
-                        discipline.getDisciplineName(),
-                        discipline.getTeacherName() != null ? discipline.getTeacherName().trim() : "professor não informado",
-                        inicio.format(outputFormat),
-                        fim.format(outputFormat)
-                ));
-
-                if (breakTime > 0) {
-                    result.append(String.format(" (*Intervalo* de %d minutos)", breakTime));
-                }
-
-                result.append(".\n\n");
-            }
-        }
-
-        return result.toString();
-    }
-
-
-    private String humanizeAbsence(List<IDisciplineAbsence> iDisciplineAbsences) {
-        StringBuilder absences = new StringBuilder();
-        iDisciplineAbsences.forEach(absence -> {
-            absences.append("Em ")
-                    .append(absence.getDisciplineName())
-                    .append(":\n")
-                    .append("Total de Faltas: ")
-                    .append(absence.getTotalAbsence())
-                    .append("\nAbonadas: ")
-                    .append(absence.getTotalExcusedAbsences())
-                    .append("\nPercentual de presença: ")
-                    .append(absence.getPercentPresence())
-                    .append("%").append("\n");
-        });
-        return absences.toString();
-    }
-
-
-
-
 
 }
