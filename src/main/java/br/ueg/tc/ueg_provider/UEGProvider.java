@@ -8,8 +8,10 @@ import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.ILoginData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
+import br.ueg.tc.ueg_provider.infos.LoginData;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import lombok.Getter;
@@ -74,6 +76,9 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> authenticateUser(String username, String password) throws UserNotAuthenticatedException, InstitutionComunicationException {
+        if (username == null || password == null) {
+            return new ArrayList<>(List.of(new KeyValue("guest", "noAccessData")));
+        }
         HttpPost httpPost = new HttpPost(VALIDA_LOGIN);
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("cpf", username));
@@ -109,13 +114,18 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> refreshUserAccessData(List<KeyValue> accessData) {
-        enterPortal("Aluno");
+        enterPortal("Alu" +
+                "no");
         return cookiesToKeyValue();
     }
 
     private void enterPortal(String persona) {
         System.out.println("ENTER PORTAL PERSONA: " + persona);
         HttpGet httpGet;
+        if (persona.equals("Convidado"))
+        {
+            return;
+        }
         if (persona.equals("Professor")) {
             httpGet = new HttpGet(ENTRA_PORTAL_PROFESSOR);
         } else {
@@ -161,7 +171,8 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     @Override
     public List<String> getPersonas() {
         return List.of(
-                "Aluno"
+                "Aluno",
+                "Convidado"
         );
     }
 
@@ -171,18 +182,41 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     @Override
-    public String getSalutationPhrase() {
-        return "Bem vindo! Faça login com os dados do ADMS";
+    public List<ILoginData> getLoginData() {
+        return List.of(
+                new LoginData("CPF",
+                        "Senha",
+                        "Entre com sua conta do ADMS",
+                        "Aluno"),
+                new LoginData(null,
+                        null,
+                        "Entre como convidado",
+                        "Convidado")
+        );
     }
 
     @Override
-    public String getPasswordFieldName() {
-        return "Senha";
+    public String getSalutationPhrase(String persona) {
+        LoginData  loginData = (LoginData) getLoginData().
+                stream().filter(iLoginData -> iLoginData.getPersona().equalsIgnoreCase(persona))
+                .findFirst().orElse(null);
+        return loginData != null ? loginData.getSalutationPhrase() : null;
     }
 
     @Override
-    public String getUsernameFieldName() {
-        return "CPF";
+    public String getUsernameFieldName(String persona) {
+        LoginData  loginData = (LoginData) getLoginData().
+                stream().filter(iLoginData -> iLoginData.getPersona().equalsIgnoreCase(persona))
+                .findFirst().orElse(null);
+        return loginData != null ? loginData.getUsernameField() : null;
+    }
+
+    @Override
+    public String getPasswordFieldName(String persona) {
+        LoginData  loginData = (LoginData) getLoginData().
+                stream().filter(iLoginData -> iLoginData.getPersona().equalsIgnoreCase(persona))
+                .findFirst().orElse(null);
+        return loginData != null ? loginData.getPasswordField() : null;
     }
 
     public String generateNewAcademicRecordHTML() {

@@ -20,5 +20,10 @@ public class FreeAccessService extends InstitutionService {
                 "\n" +
                 "No ano de 1999, A Universidade Estadual de Goiás (UEG) teve sua origem na transformação da Uniana e na incorporação de outras 14 instituições de ensino superior, por meio da Lei 13.456. Sua sede foi estabelecida na cidade de Anápolis. A UEG nasceu com o objetivo central desenvolver um programa específico voltado para os trabalhadores da educação do Estado, oferecendo-lhes formação de nível superior. Isso se justificava pela constatação de que apenas 32% dos professores possuíam graduação na época. Mas a UEG não se limitou a formar professores e hoje oferta cursos em todas as áreas do conhecimento. Atualmente, a instituição oferece licenciaturas, bacharelados, cursos superiores de tecnologias, além de pós-graduações lato e stricto sensu.";
     }
+
+    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getAvailableCourses' para listar os cursos oferecidos pela UEG.
+    // Utilizará um endpoint público.
+    // Adicionar @ServiceProviderMethod com frases como "quais cursos a UEG tem?", "listar cursos de graduação".
+
 }
 

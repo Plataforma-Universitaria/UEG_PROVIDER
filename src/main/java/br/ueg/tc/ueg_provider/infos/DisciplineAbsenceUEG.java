@@ -23,4 +23,10 @@ public class DisciplineAbsenceUEG implements IDisciplineAbsence {
     @SerializedName("mat_nfaltas_abonadas")
     private Long totalExcusedAbsences;
 
+    @SerializedName("mat_pfreq_aula_ministrada")
+    private String percentPresence;
+
+    @SerializedName("sit_desc")
+    private String status;
+
 }

@@ -1,13 +1,43 @@
 package br.ueg.tc.ueg_provider.formatter;
 
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDiscipline;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineAbsence;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineSchedule;
+import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class FormatterScheduleByWeekDay {
+public class Formatter {
+
+    public List<IDisciplineGrade> disciplineGradeByDisciplineName(String disciplineName, List<IDisciplineGrade> disciplines) {
+        if(disciplines != null && !disciplines.isEmpty()){
+            return disciplines.stream()
+                    .filter(discipline ->
+                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+        }
+        return null;
+    }
+
+    public List<IDisciplineSchedule> scheduleByDisciplineName(String disciplineName, List<IDisciplineSchedule> disciplines) {
+        if(disciplines != null && !disciplines.isEmpty()){
+            return disciplines.stream()
+                    .filter(discipline ->
+                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+        }
+        return null;
+    }
+    public List<IDisciplineAbsence> absencesByDisciplineName(String disciplineName, List<IDisciplineAbsence> disciplines) {
+        if(disciplines != null && !disciplines.isEmpty()){
+            return disciplines.stream()
+                    .filter(discipline ->
+                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+        }
+        return null;
+    }
 
     public List<IDisciplineSchedule> disciplinesWithScheduleByDay(WeekDay day, List<IDisciplineSchedule> disciplines){
         if(disciplines == null || !disciplines.isEmpty()){
@@ -64,4 +94,23 @@ public class FormatterScheduleByWeekDay {
         });
         return disciplines;
     }
+
+    public List<IDisciplineGrade> disciplineGradeBySemester(String semester, List<IDisciplineGrade> disciplines) {
+        if(disciplines != null && !disciplines.isEmpty()){
+            return disciplines.stream()
+                    .filter(discipline ->
+                            discipline.getSemester().trim().equalsIgnoreCase(semester.trim())).toList();
+        }
+        return null;
+    }
+
+    public List<IDiscipline> disciplineByStatus(String aprovado, List<IDiscipline> disciplines) {
+        if(disciplines != null && !disciplines.isEmpty()){
+            return disciplines.stream()
+                    .filter(discipline ->
+                            discipline.getStatus().trim().equalsIgnoreCase(aprovado.trim())).toList();
+        }
+        return null;
+    }
+
 }
