@@ -134,7 +134,7 @@ public class Formatter {
 
         return "Horas Exigidas: " + complementaryActivity.getHourLimit()
                 + "\nHoras cumpridas: " + complementaryActivity.getHourReached()
-                + (least != 0 ? "Você precisa de: " + least : "Você concluiu sua horas complementares") + "\n Você também pode pedir por _detalhes das atividades complementares_";
+                + (least != 0 ? "\nVocê precisa de: " + least : "Você concluiu sua horas complementares") + "\n Você também pode pedir por _detalhes das atividades complementares_";
     }
     public String formatComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
         if (complementaryActivities == null || complementaryActivities.isEmpty()) {
@@ -145,11 +145,9 @@ public class Formatter {
                 .collect(Collectors.groupingBy(ComplementaryActivityUEG::getModality));
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Encontrei as seguintes atividades complementares:\n");
+        stringBuilder.append("Encontrei as seguintes atividades complementares:\n\n");
 
         groupedByModality.forEach((modality, activities) -> {
-            stringBuilder.append("-------------------\n *").append(modality).append("* \n");
-
             activities.forEach(activity -> {
                 stringBuilder.append("Descrição: ")
                         .append(Objects.toString(activity.getDescription(), "-")).append("\n")
@@ -165,8 +163,8 @@ public class Formatter {
             });
 
             stringBuilder.append("\n");
-            stringBuilder.append("Se quiser peça por _resumo das atividades complementares_ para um resumo geral");
         });
+        stringBuilder.append("Se quiser peça por _resumo das atividades complementares_ para um resumo geral");
 
         return stringBuilder.toString().trim();
     }
@@ -241,8 +239,9 @@ public class Formatter {
 
     public String formatExtensionActivities(List<ExtensionActivityUEG> extensionActivities) {
         StringBuilder  stringBuilder = new StringBuilder();
+        stringBuilder.append("Encontrei as seguintes informações:\n");
         extensionActivities.forEach(ext -> {
-            stringBuilder.append("Encontrei as seguintes informações:\n")
+            stringBuilder
                     .append("Título: ").append(ext.getTitle()).append("\n")
                     .append("Responsável: ").append(ext.getName()).append("\n")
                     .append("Horas: ").append(ext.getHours()).append("\n\n");
