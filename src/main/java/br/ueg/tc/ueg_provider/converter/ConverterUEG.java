@@ -218,4 +218,11 @@ public class ConverterUEG implements IConverterInstitution {
     private boolean isNullOrEmpty(JsonArray jsonArray) {
         return jsonArray == null || jsonArray.isEmpty();
     }
+
+    public ComplementaryActivityUEG getComplementaryHoursActivitiesFromJson(JsonElement jsonElement) {
+        if ((jsonElement.isJsonNull()) || !jsonElement.isJsonObject())
+            return  null;
+        ComplementaryActivityUEG complementaryActivity = gson.fromJson(jsonElement, ComplementaryActivityUEG.class);
+        return complementaryActivity;
+    }
 }

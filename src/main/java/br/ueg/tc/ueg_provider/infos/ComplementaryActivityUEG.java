@@ -61,4 +61,10 @@ public class ComplementaryActivityUEG {
     @SerializedName("inativo_motivo")
     private String inactiveMotive;
 
+    @SerializedName("ch_exigida")
+    private String hourLimit;
+
+    @SerializedName("ch_cumprida")
+    private String hourReached;
+
 }
