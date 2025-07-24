@@ -181,6 +181,21 @@ public class ConverterUEG implements IConverterInstitution {
         return list;
     }
 
+    public List<ExtensionActivityUEG> getExtensionActivityFromJson(JsonArray jsonArray) {
+
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<ExtensionActivityUEG> extensionActivityList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            ExtensionActivityUEG extensionActivity = gson.fromJson(jsonElement, ExtensionActivityUEG.class);
+            extensionActivityList.add(extensionActivity);
+        }
+
+        return extensionActivityList;
+    }
+
 
 
     /**

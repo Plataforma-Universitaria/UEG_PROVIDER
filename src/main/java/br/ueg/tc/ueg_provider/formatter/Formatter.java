@@ -3,6 +3,7 @@ package br.ueg.tc.ueg_provider.formatter;
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
+import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -238,8 +239,14 @@ public class Formatter {
     }
 
 
-
-
-
-
+    public String formatExtensionActivities(List<ExtensionActivityUEG> extensionActivities) {
+        StringBuilder  stringBuilder = new StringBuilder();
+        extensionActivities.forEach(ext -> {
+            stringBuilder.append("Encontrei as seguintes informações:\n")
+                    .append("Título: ").append(ext.getTitle()).append("\n")
+                    .append("Responsável: ").append(ext.getName()).append("\n")
+                    .append("Horas: ").append(ext.getHours()).append("\n\n");
+        });
+        return stringBuilder.toString();
+    }
 }

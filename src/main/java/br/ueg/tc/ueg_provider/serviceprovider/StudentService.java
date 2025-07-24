@@ -19,6 +19,7 @@ import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.ai.AIApi;
 import br.ueg.tc.ueg_provider.formatter.Formatter;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
+import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
 import br.ueg.tc.ueg_provider.infos.UserDataUEG;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
@@ -339,6 +340,7 @@ public class StudentService extends InstitutionService {
         }
 
     }
+
     @ServiceProviderMethod(activationPhrases = {"Resumo da atividades complementares", "Resuma como estão minhas atividades complementares", "status das atividades complementares", "resumo atv complementares"})
     public String getDigestComplementaryActivities() {
         getPersonId();
@@ -364,8 +366,34 @@ public class StudentService extends InstitutionService {
 
     }
 
+    @ServiceProviderMethod(activationPhrases = {"Status das horas de extensão", "Resuma como estão minhas atividades de extensão", "status das atividades complementares", "Horas de extensão"})
+    public String getAllExtensionActivities() {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_ATV_EXTENSAO + acuId );
+        try{
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                if (entityString == null || entityString.isEmpty()) return null;
+                List<ExtensionActivityUEG> extensionActivities = converterUEG.getExtensionActivityFromJson(
+                        (JsonArray) (JsonParser.parseString(entityString)));
+                Formatter formatter = new Formatter();
+                return formatter.formatExtensionActivities(extensionActivities);
+            } else
+                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
 
-    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getCompletedCourses' para listar as disciplinas já cursadas.
+        }catch (Exception error) {
+            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+
+    }
+
+
+
+        //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getCompletedCourses' para listar as disciplinas já cursadas.
     // A funcionalidade atual envia o histórico por e-mail, mas uma consulta direta na interface seria útil.
     // Pode-se extrair essa informação do endpoint 'DADOS_DISCIPLINAS' e formatar a resposta.
     // Adicionar @ServiceProviderMethod com frases como "quais matérias eu já fiz?", "disciplinas cursadas".
