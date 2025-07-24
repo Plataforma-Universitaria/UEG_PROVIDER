@@ -181,6 +181,21 @@ public class ConverterUEG implements IConverterInstitution {
         return list;
     }
 
+    public List<ExtensionActivityUEG> getExtensionActivityFromJson(JsonArray jsonArray) {
+
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<ExtensionActivityUEG> extensionActivityList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            ExtensionActivityUEG extensionActivity = gson.fromJson(jsonElement, ExtensionActivityUEG.class);
+            extensionActivityList.add(extensionActivity);
+        }
+
+        return extensionActivityList;
+    }
+
 
 
     /**
@@ -217,5 +232,12 @@ public class ConverterUEG implements IConverterInstitution {
     }
     private boolean isNullOrEmpty(JsonArray jsonArray) {
         return jsonArray == null || jsonArray.isEmpty();
+    }
+
+    public ComplementaryActivityUEG getComplementaryHoursActivitiesFromJson(JsonElement jsonElement) {
+        if ((jsonElement.isJsonNull()) || !jsonElement.isJsonObject())
+            return  null;
+        ComplementaryActivityUEG complementaryActivity = gson.fromJson(jsonElement, ComplementaryActivityUEG.class);
+        return complementaryActivity;
     }
 }

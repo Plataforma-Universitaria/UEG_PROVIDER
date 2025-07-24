@@ -3,6 +3,7 @@ package br.ueg.tc.ueg_provider.formatter;
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
+import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -117,7 +118,7 @@ public class Formatter {
     }
 
 
-    public String humanizeDiscipline(List<IDiscipline> disciplines) {
+    public String formatDiscipline(List<IDiscipline> disciplines) {
         StringBuilder stringBuilder = new StringBuilder();
         disciplines.forEach(discipline -> {
             stringBuilder.append("Disciplinas: \n")
@@ -127,7 +128,15 @@ public class Formatter {
         return stringBuilder.toString();
 
     }
-    public String humanizeComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
+    public String formatComplementaryActivities(ComplementaryActivityUEG complementaryActivity) {
+        float least = Float.parseFloat(complementaryActivity.getHourLimit()) -
+                Float.parseFloat(complementaryActivity.getHourReached());
+
+        return "Horas Exigidas: " + complementaryActivity.getHourLimit()
+                + "\nHoras cumpridas: " + complementaryActivity.getHourReached()
+                + (least != 0 ? "Você precisa de: " + least : "Você concluiu sua horas complementares") + "\n Você também pode pedir por _detalhes das atividades complementares_";
+    }
+    public String formatComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
         if (complementaryActivities == null || complementaryActivities.isEmpty()) {
             return "Nenhuma atividade complementar encontrada.";
         }
@@ -136,30 +145,33 @@ public class Formatter {
                 .collect(Collectors.groupingBy(ComplementaryActivityUEG::getModality));
 
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Encontrei as seguintes atividades complementares:\n");
 
         groupedByModality.forEach((modality, activities) -> {
-            stringBuilder.append("Modalidade: ").append(modality).append("\n");
+            stringBuilder.append("-------------------\n *").append(modality).append("* \n");
 
             activities.forEach(activity -> {
-                stringBuilder.append("Status: ")
+                stringBuilder.append("Descrição: ")
+                        .append(Objects.toString(activity.getDescription(), "-")).append("\n")
+                        .append("Status: ")
                         .append(Objects.toString(activity.getHomolApproved(), "-").equals("t") ? "Aprovado" : "Pendente" ).append(" \n ")
-                        .append("Horas Solicitadas: ")
+                        .append("Data de solicitação: ")
+                        .append(activity.getSolicitedDate()).append("Horas Solicitadas: ").append("\n")
                         .append(Objects.toString(activity.getSolicitedHours(), "-")).append("\n")
                         .append("Horas Aprovadas: ")
-                        .append(Objects.toString(activity.getApprovedHours(), "-")).append("\n")
-                        .append("Data de solicitação: ")
-                        .append(activity.getSolicitedDate()).append("\n")
-                        .append("Descrição: ")
-                        .append(Objects.toString(activity.getDescription(), "-")).append("\n");
+                        .append(Objects.toString(activity.getApprovedHours(), "-"))
+                        .append("\n\n");
+
             });
 
             stringBuilder.append("\n");
+            stringBuilder.append("Se quiser peça por _resumo das atividades complementares_ para um resumo geral");
         });
 
         return stringBuilder.toString().trim();
     }
 
-    public String humanizeSchedule(List<IDisciplineSchedule> disciplineSchedules) {
+    public String formatSchedule(List<IDisciplineSchedule> disciplineSchedules) {
         StringBuilder result = new StringBuilder();
         DateTimeFormatter timeParser = DateTimeFormatter.ofPattern("HH:mm:ss");
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("HH:mm");
@@ -210,7 +222,7 @@ public class Formatter {
     }
 
 
-    public String humanizeAbsence(List<IDisciplineAbsence> iDisciplineAbsences) {
+    public String formatAbsence(List<IDisciplineAbsence> iDisciplineAbsences) {
         StringBuilder absences = new StringBuilder();
         iDisciplineAbsences.forEach(absence -> {
             absences.append(absence.getDisciplineName())
@@ -227,8 +239,14 @@ public class Formatter {
     }
 
 
-
-
-
-
+    public String formatExtensionActivities(List<ExtensionActivityUEG> extensionActivities) {
+        StringBuilder  stringBuilder = new StringBuilder();
+        extensionActivities.forEach(ext -> {
+            stringBuilder.append("Encontrei as seguintes informações:\n")
+                    .append("Título: ").append(ext.getTitle()).append("\n")
+                    .append("Responsável: ").append(ext.getName()).append("\n")
+                    .append("Horas: ").append(ext.getHours()).append("\n\n");
+        });
+        return stringBuilder.toString();
+    }
 }
