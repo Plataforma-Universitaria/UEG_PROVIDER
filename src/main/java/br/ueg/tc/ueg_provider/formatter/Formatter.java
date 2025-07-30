@@ -239,6 +239,8 @@ public class Formatter {
 
     public String formatExtensionActivities(List<ExtensionActivityUEG> extensionActivities) {
         StringBuilder  stringBuilder = new StringBuilder();
+        if(extensionActivities.isEmpty())
+            return "Não encontrei nenhuma atividade de extensão!";
         stringBuilder.append("Encontrei as seguintes informações:\n");
         extensionActivities.forEach(ext -> {
             stringBuilder
