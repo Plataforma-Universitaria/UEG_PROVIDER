@@ -120,8 +120,9 @@ public class Formatter {
 
     public String formatDiscipline(List<IDiscipline> disciplines) {
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("*Disciplinas Concluídas:* \n");
         disciplines.forEach(discipline -> {
-            stringBuilder.append("Disciplinas: \n")
+            stringBuilder
                     .append(discipline.getDisciplineName())
                     .append("\n");
         });
