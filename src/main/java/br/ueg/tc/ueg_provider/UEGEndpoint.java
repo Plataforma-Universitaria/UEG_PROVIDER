@@ -16,6 +16,7 @@ public interface UEGEndpoint {
     String DADOS_ATV_COMPLEMENTARES = "https://www.app.ueg.br/fenix-back-end/atividade_complementar/buscar_ac?acu_id=";
     String DADOS_ATV_COMPLEMENTARES_HORAS = "https://www.app.ueg.br/fenix-back-end/percurso_academico/evolucao_academica_atividade_complementar/?acu_id=";
     String DADOS_ATV_EXTENSAO = "https://www.app.ueg.br/fenix-back-end/percurso_academico/evolucao_academica_extensao/?acu_id=";
+    String UEG_CONTATOS = "https://www.ueg.br/conteudo/22914_enderecos__telefones__e_mails_e_horario_de_atendimento";
 
     String GET_JWT_TOKEN = "https://www.app.ueg.br/auth/jwt/get?sistema=gestao_academica";
     String PRE_GERAR_NOVO_HISTORICO_ACADEMICO = "https://www.app.ueg.br/fenix-back-end/historico_academico/?jwt={0}";

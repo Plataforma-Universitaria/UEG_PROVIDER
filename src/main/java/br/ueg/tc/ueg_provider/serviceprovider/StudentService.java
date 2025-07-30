@@ -9,11 +9,12 @@ import br.ueg.tc.pipa_integrator.exceptions.GenericBusinessException;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
-import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IPlataformService;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.ai.AIApi;
@@ -30,12 +31,10 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
 import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
@@ -51,7 +50,8 @@ public class StudentService extends InstitutionService {
     public StudentService() {
         super();
     }
-    public StudentService(IUser user){
+
+    public StudentService(IUser user) {
         super(user);
     }
 
@@ -159,7 +159,6 @@ public class StudentService extends InstitutionService {
     }
 
 
-
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
     public String getAllSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
@@ -186,7 +185,7 @@ public class StudentService extends InstitutionService {
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas de segunda",
             "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje", "Aulas de amanhã"})
-    public String getScheduleByDay(String day){
+    public String getScheduleByDay(String day) {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -197,8 +196,7 @@ public class StudentService extends InstitutionService {
                 if (entityString == null || entityString.isEmpty()) return null;
                 Formatter formatter = new Formatter();
                 day = getWeekByValue(day);
-                if(Objects.equals(day, "NENHUMA"))
-                {
+                if (Objects.equals(day, "NENHUMA")) {
                     return "Você não tem aulas nesse dia";
                 }
                 return formatter.formatSchedule(formatter.disciplinesWithScheduleByDay(WeekDay.getByShortName(day),
@@ -220,7 +218,7 @@ public class StudentService extends InstitutionService {
             "Aula de português", "Quando é a aula de Português",
             "Quando é minha aula de infra",
             "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
-    public String getScheduleByDisciplineName(String disciplineToGetSchedule){
+    public String getScheduleByDisciplineName(String disciplineToGetSchedule) {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -229,8 +227,7 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 disciplineToGetSchedule = getDisciplineNameResponse(disciplineToGetSchedule, entityString);
-                if(Objects.equals(disciplineToGetSchedule, "NENHUMA"))
-                {
+                if (Objects.equals(disciplineToGetSchedule, "NENHUMA")) {
                     return "Você não tem aulas dessa matéria";
                 }
                 Formatter formatter = new Formatter();
@@ -252,35 +249,60 @@ public class StudentService extends InstitutionService {
             "O que você pode fazer",
             "O que posso fazer",
             "Funcionalidades"})
-    public String getAllFunctionalities(){
-        return "Consultar:\n * Aulas *\n* Notas *\n* Faltas *";
+    public String getAllFunctionalities() {
+        return """
+            Como Aluno, você pode realizar as seguintes consultas:
+            
+            **Disciplinas e Notas**
+            • Ver sua média geral.
+            • Consultar notas por disciplina.
+            • Consultar notas por período/semestre.
+            • Ver disciplinas já concluídas.
+            
+            **Horários de Aula**
+            • Ver todas as aulas da semana.
+            • Consultar aulas por dia específico.
+            • Ver quando tem aula de determinada disciplina.
+            
+            **Faltas**
+            • Ver faltas por disciplina.
+            
+            **Atividades Complementares**
+            • Consultar todas as atividades complementares com detalhes.
+            • Ver um resumo das horas complementares realizadas.
+            
+            **Atividades de Extensão**
+            • Ver as atividades de extensão cadastradas e suas cargas horárias.
+            
+            **Documentos Acadêmicos**
+            • Solicitar o envio do Histórico Acadêmico para seu e-mail institucional.
+            """;
     }
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português", "Quais minhas faltas em matematica", "Faltas em biologia II"})
-    public String getAbsencesByDiscipline(String discipline){
+    public String getAbsencesByDiscipline(String discipline) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
-        try{
+        try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 discipline = getDisciplineNameResponse(discipline, entityString);
-                if(Objects.equals(discipline, "NENHUMA"))
-                {
+                if (Objects.equals(discipline, "NENHUMA")) {
                     return "Você não tem notas nessa matéria";
                 }
                 Formatter formatter = new Formatter();
                 return formatter.formatAbsence(formatter.absencesByDisciplineName(discipline,
                         converterUEG.getDisciplinesWithAbsencesFromJson(
-                        ((JsonArray) JsonParser.parseString(entityString)))
+                                ((JsonArray) JsonParser.parseString(entityString)))
                 ));
             } else
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");
 
-        }catch (Exception error) {
+        } catch (Exception error) {
             throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -291,7 +313,7 @@ public class StudentService extends InstitutionService {
     public String getCompletedCourses() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
-        try{
+        try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
             if (responseOK(httpResponse)) {
@@ -306,20 +328,19 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");
 
-        }catch (Exception error) {
+        } catch (Exception error) {
             throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
     }
 
-    
 
     @ServiceProviderMethod(activationPhrases = {"Atividades complementares", "Como estão minhas atividades complementares", "detalhes das atividades complementares", "todas as atividades complementares"})
     public String getAllDetailedComplementaryActivities() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_ATV_COMPLEMENTARES + acuId + "&page=1&rows_limit=1000&sort_by=&descending=f");
-        try{
+        try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
             if (responseOK(httpResponse)) {
@@ -334,7 +355,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");
 
-        }catch (Exception error) {
+        } catch (Exception error) {
             throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -344,8 +365,8 @@ public class StudentService extends InstitutionService {
     @ServiceProviderMethod(activationPhrases = {"Resumo da atividades complementares", "Resuma como estão minhas atividades complementares", "status das atividades complementares", "resumo atv complementares"})
     public String getDigestComplementaryActivities() {
         getPersonId();
-        HttpGet httpGet = new HttpGet(DADOS_ATV_COMPLEMENTARES_HORAS + acuId );
-        try{
+        HttpGet httpGet = new HttpGet(DADOS_ATV_COMPLEMENTARES_HORAS + acuId);
+        try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
             if (responseOK(httpResponse)) {
@@ -359,7 +380,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");
 
-        }catch (Exception error) {
+        } catch (Exception error) {
             throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -369,8 +390,8 @@ public class StudentService extends InstitutionService {
     @ServiceProviderMethod(activationPhrases = {"Status das horas de extensão", "Resuma como estão minhas atividades de extensão", "status das atividades complementares", "Horas de extensão"})
     public String getAllExtensionActivities() {
         getPersonId();
-        HttpGet httpGet = new HttpGet(DADOS_ATV_EXTENSAO + acuId );
-        try{
+        HttpGet httpGet = new HttpGet(DADOS_ATV_EXTENSAO + acuId);
+        try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
             if (responseOK(httpResponse)) {
@@ -384,33 +405,17 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");
 
-        }catch (Exception error) {
+        } catch (Exception error) {
             throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
     }
 
-
-
-        //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getCompletedCourses' para listar as disciplinas já cursadas.
-    // A funcionalidade atual envia o histórico por e-mail, mas uma consulta direta na interface seria útil.
-    // Pode-se extrair essa informação do endpoint 'DADOS_DISCIPLINAS' e formatar a resposta.
-    // Adicionar @ServiceProviderMethod com frases como "quais matérias eu já fiz?", "disciplinas cursadas".
-
-    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getComplementaryActivities' para consultar o status das atividades complementares.
-    // Necessitará de um novo endpoint da API da UEG.
-    // Adicionar @ServiceProviderMethod com frases como "minhas atividades complementares", "quantas horas complementares eu tenho?".
-
-    //TODO: [FUNCIONALIDADE PENDENTE] Implementar 'getExtensionActivities' para consultar as atividades de extensão.
-    // Necessitará de um novo endpoint da API da UEG.
-    // Adicionar @ServiceProviderMethod com frases como "minhas atividades de extensão", "ver projetos de extensão que participei".
-
-
     //Métodos internos
 
     private String getDisciplineNameResponse(String discipline, String entityString) {
-      discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
+        discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
         return discipline;
     }
 
