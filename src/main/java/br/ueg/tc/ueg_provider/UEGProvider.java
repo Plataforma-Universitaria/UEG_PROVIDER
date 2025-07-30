@@ -77,7 +77,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     @Override
     public List<KeyValue> authenticateUser(String username, String password) throws UserNotAuthenticatedException, InstitutionComunicationException {
         if (username == null || password == null) {
-            return new ArrayList<>(List.of(new KeyValue("guest", "noAccessData")));
+            return new ArrayList<>(List.of(new KeyValue("Convidado", "noAccessData")));
         }
         HttpPost httpPost = new HttpPost(VALIDA_LOGIN);
         List<NameValuePair> nvps = new ArrayList<>();
@@ -114,8 +114,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> refreshUserAccessData(List<KeyValue> accessData) {
-        enterPortal("Alu" +
-                "no");
+        enterPortal("Aluno");
         return cookiesToKeyValue();
     }
 
