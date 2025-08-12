@@ -13,6 +13,7 @@ public interface UEGEndpoint {
     String DADOS_ACADEMICOS_NUCLEO_LIVRE = "https://www.app.ueg.br/fenix-back-end/perfil/dados_academicos";
     String DADOS_ACADEMICOS_SEMINARIO = "https://www.app.ueg.br/fenix-back-end/perfil/dados_academicos";
     String GERAR_NOVA_DECLARACAO_FREQUENCIA = "https://www.app.ueg.br/fenix-back-end/declaracao_frequencia/";
+    String GERAR_NOVA_DECLARACAO_VINCULO = "https://www.app.ueg.br/fenix-back-end/declaracao_vinculo/";
     String DADOS_ATV_COMPLEMENTARES = "https://www.app.ueg.br/fenix-back-end/atividade_complementar/buscar_ac?acu_id=";
     String DADOS_ATV_COMPLEMENTARES_HORAS = "https://www.app.ueg.br/fenix-back-end/percurso_academico/evolucao_academica_atividade_complementar/?acu_id=";
     String DADOS_ATV_EXTENSAO = "https://www.app.ueg.br/fenix-back-end/percurso_academico/evolucao_academica_extensao/?acu_id=";

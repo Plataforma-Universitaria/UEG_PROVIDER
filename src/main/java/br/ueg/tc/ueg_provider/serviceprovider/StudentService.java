@@ -6,18 +6,21 @@ import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.exceptions.GenericBusinessException;
-import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
+import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionCommunicationException;
+import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionServiceException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IPlataformService;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IPlatformService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.ai.AIApi;
+import br.ueg.tc.ueg_provider.converter.ConverterUEG;
+import br.ueg.tc.ueg_provider.dto.KeyUrl;
 import br.ueg.tc.ueg_provider.formatter.Formatter;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
 import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
@@ -25,6 +28,7 @@ import br.ueg.tc.ueg_provider.infos.UserDataUEG;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -45,6 +49,8 @@ public class StudentService extends InstitutionService {
 
     @Autowired
     AiService<AIClient> aiService;
+    @Autowired
+    private IPlatformService platformService;
     private String acuId;
 
     public StudentService() {
@@ -64,7 +70,7 @@ public class StudentService extends InstitutionService {
         acuId = getUserData().getPersonId();
     }
 
-    public IUserData getUserData() throws IntentNotSupportedException, InstitutionComunicationException {
+    public IUserData getUserData() throws IntentNotSupportedException, InstitutionCommunicationException {
         HttpGet httpGet = new HttpGet(PERFIL);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
@@ -75,7 +81,7 @@ public class StudentService extends InstitutionService {
             }
             throw new UserNotFoundException();
         } catch (Throwable error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
     }
@@ -99,11 +105,11 @@ public class StudentService extends InstitutionService {
                         "Sua média geral é: " + mediaGeral :
                         "Não foi possível encontrar sua média geral no sistema.";
             } else {
-                throw new InstitutionComunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
             }
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
 
@@ -125,17 +131,17 @@ public class StudentService extends InstitutionService {
                         converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString)));
 
             } else {
-                throw new InstitutionComunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção da nota. Tente novamente mais tarde.");
             }
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas notas do primeiro semestre",
             "notas do periodo 7", "3° periodo notas"})
-    public List<IDisciplineGrade> getGradesBySemester(String semester) {
+    public String getGradesBySemester(String semester) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
         try {
@@ -146,15 +152,15 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 Formatter formatter = new Formatter();
                 if (entityString == null || entityString.isEmpty()) return null;
-                return formatter.disciplineGradeBySemester(semester,
-                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString)));
+                return formatter.formatDisciplineGrade(formatter.disciplineGradeBySemester(semester,
+                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString))));
 
             } else {
-                throw new InstitutionComunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção das notas. Tente novamente mais tarde.");
             }
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Ocorreu um problema na obtenção da nota geral. Tente novamente mais tarde.");
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
 
@@ -174,11 +180,10 @@ public class StudentService extends InstitutionService {
                         ((JsonArray) JsonParser.parseString(entityString)
                         ));
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG, " +
-                        "tente novamente mais tarde");
+                throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horario," +
+            throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horario," +
                     " tente novamente mais tarde");
         }
     }
@@ -204,11 +209,10 @@ public class StudentService extends InstitutionService {
                                 ((JsonArray) JsonParser.parseString(entityString)))
                 );
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
-                        " tente novamente mais tarde");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horario," +
+            throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horario," +
                     " tente novamente mais tarde");
         }
     }
@@ -235,11 +239,10 @@ public class StudentService extends InstitutionService {
                         ((JsonArray) JsonParser.parseString(entityString)))
                 );
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
-                        " tente novamente mais tarde");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Ocorreu um problema na obtenção do horário, " +
+            throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horário, " +
                     "tente novamente mais tarde");
         }
     }
@@ -251,32 +254,32 @@ public class StudentService extends InstitutionService {
             "Funcionalidades"})
     public String getAllFunctionalities() {
         return """
-            Como Aluno, você pode realizar as seguintes consultas:
-            
-            **Disciplinas e Notas**
-            • Ver sua média geral.
-            • Consultar notas por disciplina.
-            • Consultar notas por período/semestre.
-            • Ver disciplinas já concluídas.
-            
-            **Horários de Aula**
-            • Ver todas as aulas da semana.
-            • Consultar aulas por dia específico.
-            • Ver quando tem aula de determinada disciplina.
-            
-            **Faltas**
-            • Ver faltas por disciplina.
-            
-            **Atividades Complementares**
-            • Consultar todas as atividades complementares com detalhes.
-            • Ver um resumo das horas complementares realizadas.
-            
-            **Atividades de Extensão**
-            • Ver as atividades de extensão cadastradas e suas cargas horárias.
-            
-            **Documentos Acadêmicos**
-            • Solicitar o envio do Histórico Acadêmico para seu e-mail institucional.
-            """;
+                Como Aluno, você pode realizar as seguintes consultas:
+                
+                **Disciplinas e Notas**
+                • Ver sua média geral.
+                • Consultar notas por disciplina.
+                • Consultar notas por período/semestre.
+                • Ver disciplinas já concluídas.
+                
+                **Horários de Aula**
+                • Ver todas as aulas da semana.
+                • Consultar aulas por dia específico.
+                • Ver quando tem aula de determinada disciplina.
+                
+                **Faltas**
+                • Ver faltas por disciplina.
+                
+                **Atividades Complementares**
+                • Consultar todas as atividades complementares com detalhes.
+                • Ver um resumo das horas complementares realizadas.
+                
+                **Atividades de Extensão**
+                • Ver as atividades de extensão cadastradas e suas cargas horárias.
+                
+                **Documentos Acadêmicos**
+                • Solicitar o envio do Histórico Acadêmico para seu e-mail institucional.
+                """;
     }
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português", "Quais minhas faltas em matematica", "Faltas em biologia II"})
@@ -299,11 +302,11 @@ public class StudentService extends InstitutionService {
                                 ((JsonArray) JsonParser.parseString(entityString)))
                 ));
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                throw new InstitutionServiceException("Não foi possível se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
@@ -325,11 +328,10 @@ public class StudentService extends InstitutionService {
                                 ((JsonArray) JsonParser.parseString(entityString)))
                 ));
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
-                        " tente novamente mais tarde");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção das matérias, tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
@@ -352,11 +354,10 @@ public class StudentService extends InstitutionService {
                                 (JsonParser.parseString(entityString)))
                 );
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
-                        " tente novamente mais tarde");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção das atividades complementares, tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
@@ -377,11 +378,10 @@ public class StudentService extends InstitutionService {
                 Formatter formatter = new Formatter();
                 return formatter.formatComplementaryActivities(complementaryActivity);
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
-                        " tente novamente mais tarde");
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção do resumo das atividades complementares, tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
@@ -402,17 +402,46 @@ public class StudentService extends InstitutionService {
                 Formatter formatter = new Formatter();
                 return formatter.formatExtensionActivities(extensionActivities);
             } else
-                throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção das atividades de extensão, tente novamente mais tarde" +
                         " tente novamente mais tarde");
 
         } catch (Exception error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
 
     }
 
+    @ServiceProviderMethod(activationPhrases = {
+            "Me mande a declaração de frequencia",
+            "enviar declaração de frequencia",
+            "declaração de frequencia",
+            "declaracao de freq"
+    })
+    public String sendFrequencyDeclaration() {
+        try {
+            getPersonId();
+
+            UserDataUEG studentData = (UserDataUEG) getUserData();
+
+            validateStudentEmail(studentData.getEmail());
+
+            String pdfPath = generateAcademicRecordPDF(platformService);
+
+            EmailDetails emailDetails = buildEmailFrequencyDetails(studentData, pdfPath);
+
+            return sendEmail(platformService, emailDetails);
+
+        } catch (Exception e) {
+            return "Ocorreu um erro ao enviar sua declaração de frequência: " + e.getMessage();
+        }
+    }
+
+
     //Métodos internos
+
+    //TODO: Avaliar o impacto de mudar as keys de IA do provider,
+    // tirando o uso da conta da pipa, mas deixando a API de IA pra universidade usar
 
     private String getDisciplineNameResponse(String discipline, String entityString) {
         discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
@@ -431,32 +460,85 @@ public class StudentService extends InstitutionService {
                         ("Não foram encontrados os dados do estudante para envio do histórico acadêmico"));
     }
 
-    private void validateStudentEmail(UserDataUEG studentData) {
-        if (Objects.isNull(studentData) ||
-                Objects.isNull(studentData.getEmail()) || studentData.getEmail().isEmpty()) {
+    private void validateStudentEmail(String studentEmail) {
+        if (Objects.isNull(studentEmail) || studentEmail.isEmpty()) {
             throw new GenericBusinessException("Não foi encontrado o email do estudante para envio da histórico");
         }
     }
 
-    private String generateAcademicRecordPDF(IBaseInstitutionProvider institution, IPlataformService plataformService) {
-        String attendanceDeclarationHTML = ((UEGProvider) institution).generateNewAcademicRecordHTML();
-        return plataformService.HTMLToPDF(attendanceDeclarationHTML, ACADEMIC_RECORD.getFolderPath(),
+    private String generateAcademicRecordPDF(IPlatformService platformService) {
+        String attendanceDeclarationHTML = generateNewAcademicRecordHTML();
+        return platformService.HTMLToPDF(attendanceDeclarationHTML,
+                ACADEMIC_RECORD.getFolderPath(),
                 ACADEMIC_RECORD.getFilePrefix());
 
     }
 
-    private EmailDetails buildEmailDetails(UserDataUEG studentData, String pdfPath) {
+    public String generateNewAcademicRecordHTML(){
+
+            try {
+                HttpPost httpPost = new HttpPost(GERAR_NOVA_DECLARACAO_FREQUENCIA);
+                CloseableHttpResponse httpResponse = httpClient.execute(httpPost, localContext);
+                HttpEntity entity = httpResponse.getEntity();
+
+                if (responseOK(httpResponse)) {
+                    KeyUrl keyUrl = ((ConverterUEG)converterUEG).getKeyUrlFromJson(
+                            JsonParser.parseString(EntityUtils.toString(entity)));
+
+                    if (Objects.nonNull(keyUrl) && !keyUrl.url().isEmpty()) {
+                        return getHTMLFromURL(keyUrl.url());
+                    }
+                }
+                throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
+                        " tente novamente mais tarde");
+            } catch (Throwable error) {
+                throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                        " tente novamente mais tarde");
+            }
+
+    }
+
+    private String getHTMLFromURL(String url) {
+        HttpGet httpGet = new HttpGet(url);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                return EntityUtils.toString(entity);
+            }
+            throw new InstitutionServiceException();
+        } catch (Throwable error) {
+            throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+    }
+
+    private EmailDetails buildEmailHistoryDetails(UserDataUEG studentData, String pdfPath) {
         return new EmailDetails(studentData.getFirstName(), studentData.getEmail(),
                 "HISTÓRICO ACADÊMICO UEG",
                 "Olá, segue em anexo seu Histórico Acadêmico da UEG",
                 "Histórico_Acadêmico", pdfPath);
     }
 
-    private String sendEmail(IPlataformService plataformService, EmailDetails emailDetails) {
-        if (plataformService.sendEmailWithFileAttachment(emailDetails)) {
-            return "Seu Histórico Acadêmico foi enviado para o seu e-mail acadêmico.";
+    private EmailDetails buildEmailFrequencyDetails(UserDataUEG studentData, String pdfPath) {
+        return new EmailDetails(studentData.getFirstName(), studentData.getEmail(),
+                "Declaração de Frequência UEG",
+                "Olá, segue em anexo sua Declaração de frequência da UEG",
+                "Declaração_Frequência", pdfPath);
+    }
+
+    private EmailDetails buildEmailBondDetails(UserDataUEG studentData, String pdfPath) {
+        return new EmailDetails(studentData.getFirstName(), studentData.getEmail(),
+                "HISTÓRICO ACADÊMICO UEG",
+                "Olá, segue em anexo sua Declaração de vínculo da UEG",
+                "Declaração_Vínculo", pdfPath);
+    }
+
+    private String sendEmail(IPlatformService platformService, EmailDetails emailDetails) {
+        if (platformService.sendEmailWithFileAttachment(emailDetails)) {
+            return "O documento foi enviado para o seu e-mail acadêmico.";
         }
-        return "Houve um erro ao enviar seu Histórico Acadêmico, tente novamente mais tarde";
+        return "Houve um erro ao enviar seu documento, tente novamente mais tarde";
     }
 
 }

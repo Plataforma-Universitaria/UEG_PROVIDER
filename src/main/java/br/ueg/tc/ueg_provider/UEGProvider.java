@@ -1,13 +1,13 @@
 package br.ueg.tc.ueg_provider;
 
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
-import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionComunicationException;
+import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionCommunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotAuthenticatedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
+import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
 import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
-import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.ILoginData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
@@ -75,7 +75,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     @Override
-    public List<KeyValue> authenticateUser(String username, String password) throws UserNotAuthenticatedException, InstitutionComunicationException {
+    public List<KeyValue> authenticateUser(String username, String password, List<String> personas) throws UserNotAuthenticatedException, InstitutionCommunicationException {
         if (username == null || password == null) {
             return new ArrayList<>(List.of(new KeyValue("Convidado", "noAccessData")));
         }
@@ -147,7 +147,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
 
     @Override
-    public IUserData getUserData() throws IntentNotSupportedException, InstitutionComunicationException {
+    public IUserData getUserData() throws IntentNotSupportedException, InstitutionCommunicationException {
         HttpGet httpGet = new HttpGet(PERFIL);
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
@@ -158,7 +158,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
             }
             throw new UserNotFoundException();
         } catch (Throwable error) {
-            throw new InstitutionComunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
     }
@@ -177,7 +177,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public String getInstitutionName() {
-        return "Universidade estadual de goiás";
+        return "Universidade Estadual de Goiás";
     }
 
     @Override
@@ -216,13 +216,5 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
                 stream().filter(iLoginData -> iLoginData.getPersona().equalsIgnoreCase(persona))
                 .findFirst().orElse(null);
         return loginData != null ? loginData.getPasswordField() : null;
-    }
-
-    public String generateNewAcademicRecordHTML() {
-        return "";
-    }
-
-    public String generateNewAttendanceDeclarationHTML() {
-        return "";
     }
 }
