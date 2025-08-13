@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Formatter {
 
     public List<IDisciplineGrade> disciplineGradeByDisciplineName(String disciplineName, List<IDisciplineGrade> disciplines) {
-        if(disciplines != null && !disciplines.isEmpty()){
+        if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
                             discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
@@ -27,15 +27,7 @@ public class Formatter {
     }
 
     public List<IDisciplineSchedule> scheduleByDisciplineName(String disciplineName, List<IDisciplineSchedule> disciplines) {
-        if(disciplines != null && !disciplines.isEmpty()){
-            return disciplines.stream()
-                    .filter(discipline ->
-                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
-        }
-        return null;
-    }
-    public List<IDisciplineAbsence> absencesByDisciplineName(String disciplineName, List<IDisciplineAbsence> disciplines) {
-        if(disciplines != null && !disciplines.isEmpty()){
+        if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
                             discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
@@ -43,8 +35,17 @@ public class Formatter {
         return null;
     }
 
-    public List<IDisciplineSchedule> disciplinesWithScheduleByDay(WeekDay day, List<IDisciplineSchedule> disciplines){
-        if(disciplines == null || !disciplines.isEmpty()){
+    public List<IDisciplineAbsence> absencesByDisciplineName(String disciplineName, List<IDisciplineAbsence> disciplines) {
+        if (disciplines != null && !disciplines.isEmpty()) {
+            return disciplines.stream()
+                    .filter(discipline ->
+                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+        }
+        return null;
+    }
+
+    public List<IDisciplineSchedule> disciplinesWithScheduleByDay(WeekDay day, List<IDisciplineSchedule> disciplines) {
+        if (disciplines == null || !disciplines.isEmpty()) {
             return sortDisciplinesByDayAndStartHourClass(day.getShortName(), doWeeklyClassSchedule(disciplines));
         }
         return null;
@@ -52,7 +53,7 @@ public class Formatter {
 
     public HashMap<String, List<IDisciplineSchedule>> doWeeklyClassSchedule(List<IDisciplineSchedule> disciplineList) {
 
-        if (Objects.isNull(disciplineList) || disciplineList.isEmpty()){
+        if (Objects.isNull(disciplineList) || disciplineList.isEmpty()) {
             return null;
         }
         HashMap<String, List<IDisciplineSchedule>> weeklyClassSchedule = new HashMap<>();
@@ -100,7 +101,7 @@ public class Formatter {
     }
 
     public List<IDisciplineGrade> disciplineGradeBySemester(String semester, List<IDisciplineGrade> disciplines) {
-        if(disciplines != null && !disciplines.isEmpty()){
+        if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
                             discipline.getSemester().trim().equalsIgnoreCase(semester.trim())).toList();
@@ -109,7 +110,7 @@ public class Formatter {
     }
 
     public List<IDiscipline> disciplineByStatus(String aprovado, List<IDiscipline> disciplines) {
-        if(disciplines != null && !disciplines.isEmpty()){
+        if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
                             discipline.getStatus().trim().equalsIgnoreCase(aprovado.trim())).toList();
@@ -120,14 +121,16 @@ public class Formatter {
 
     public String formatDiscipline(List<IDiscipline> disciplines) {
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("*Disciplinas Concluídas:* \n");
         disciplines.forEach(discipline -> {
-            stringBuilder.append("Disciplinas: \n")
+            stringBuilder
                     .append(discipline.getDisciplineName())
                     .append("\n");
         });
         return stringBuilder.toString();
 
     }
+
     public String formatComplementaryActivities(ComplementaryActivityUEG complementaryActivity) {
         float least = Float.parseFloat(complementaryActivity.getHourLimit()) -
                 Float.parseFloat(complementaryActivity.getHourReached());
@@ -136,6 +139,7 @@ public class Formatter {
                 + "\nHoras cumpridas: " + complementaryActivity.getHourReached()
                 + (least != 0 ? "\nVocê precisa de: " + least : "Você concluiu sua horas complementares") + "\n Você também pode pedir por _detalhes das atividades complementares_";
     }
+
     public String formatComplementaryActivities(List<ComplementaryActivityUEG> complementaryActivities) {
         if (complementaryActivities == null || complementaryActivities.isEmpty()) {
             return "Nenhuma atividade complementar encontrada.";
@@ -152,7 +156,7 @@ public class Formatter {
                 stringBuilder.append("Descrição: ")
                         .append(Objects.toString(activity.getDescription(), "-")).append("\n")
                         .append("Status: ")
-                        .append(Objects.toString(activity.getHomolApproved(), "-").equals("t") ? "Aprovado" : "Pendente" ).append(" \n ")
+                        .append(Objects.toString(activity.getHomolApproved(), "-").equals("t") ? "Aprovado" : "Pendente").append(" \n ")
                         .append("Data de solicitação: ")
                         .append(activity.getSolicitedDate()).append("Horas Solicitadas: ").append("\n")
                         .append(Objects.toString(activity.getSolicitedHours(), "-")).append("\n")
@@ -238,8 +242,8 @@ public class Formatter {
 
 
     public String formatExtensionActivities(List<ExtensionActivityUEG> extensionActivities) {
-        StringBuilder  stringBuilder = new StringBuilder();
-        if(extensionActivities.isEmpty())
+        StringBuilder stringBuilder = new StringBuilder();
+        if (extensionActivities.isEmpty())
             return "Não encontrei nenhuma atividade de extensão!";
         stringBuilder.append("Encontrei as seguintes informações:\n");
         extensionActivities.forEach(ext -> {
@@ -247,6 +251,24 @@ public class Formatter {
                     .append("Título: ").append(ext.getTitle()).append("\n")
                     .append("Responsável: ").append(ext.getName()).append("\n")
                     .append("Horas: ").append(ext.getHours()).append("\n\n");
+        });
+        return stringBuilder.toString();
+    }
+
+    public String formatDisciplineGrade(List<IDisciplineGrade> iDisciplineGrades) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (iDisciplineGrades.isEmpty())
+            return "Não encontrei nenhuma atividade de extensão!";
+        stringBuilder.append("Encontrei as seguintes informações:\n");
+        iDisciplineGrades.forEach(disciplineGrade -> {
+            stringBuilder
+                    .append(disciplineGrade.getDisciplineName()).append("\n");
+            disciplineGrade.getDetailedGrades()
+                    .forEach(detailedGrade -> {
+                        stringBuilder.append(detailedGrade.getBimester()).append(" - ")
+                                .append(detailedGrade.getGradeValue()).append("\n");
+                    });
+            stringBuilder.append("Média final: ").append(disciplineGrade.getFinalMedia()).append("\n\n");
         });
         return stringBuilder.toString();
     }

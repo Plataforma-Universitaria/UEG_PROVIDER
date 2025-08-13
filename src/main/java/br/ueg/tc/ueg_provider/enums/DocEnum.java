@@ -5,9 +5,9 @@ import java.nio.file.Paths;
 
 public enum DocEnum {
 
-    ATTENDANCE_DECLARATION(Paths.get(""),"attendance_"),
+    ATTENDANCE_DECLARATION(Paths.get("academic"),"attendance_"),
 
-    ACADEMIC_RECORD(Paths.get(""), "record_");
+    ACADEMIC_RECORD(Paths.get("academic"), "record_");
 
     private final Path folderPath;
     private final String filePrefix;
