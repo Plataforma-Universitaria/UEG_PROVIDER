@@ -50,7 +50,7 @@ public class StudentService extends InstitutionService {
     @Autowired
     AiService<AIClient> aiService;
     @Autowired
-    private IPlatformService platformService;
+    IPlatformService platformService;
     private String acuId;
 
     public StudentService() {
