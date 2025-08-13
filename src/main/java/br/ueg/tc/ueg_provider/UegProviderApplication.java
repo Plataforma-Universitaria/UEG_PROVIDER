@@ -4,7 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
         "br.ueg.tc",
-        "br.ueg.tc.pipa_integrator"
+        "br.ueg.tc.pipa_integrator",
+        "br.ueg.tc.pipa_email",
 })
 public class UegProviderApplication {
 
