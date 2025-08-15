@@ -1,7 +1,6 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.apiai.service.AiService;
-import br.ueg.tc.pipa_email.services.PlatformServiceImpl;
 import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
@@ -35,7 +34,6 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -51,10 +49,10 @@ import static br.ueg.tc.ueg_provider.enums.DocEnum.*;
 public class StudentService extends InstitutionService {
 
     @Autowired
-    AiService<AIClient> aiService;
+    private AiService<AIClient> aiService;
 
     @Autowired
-    PlatformServiceImpl platformService;
+    private IPlatformService platformService;
 
     private String acuId;
     private String jwt;
@@ -66,6 +64,7 @@ public class StudentService extends InstitutionService {
     public StudentService(IUser user) {
         super(user);
     }
+
 
     private boolean responseOK(CloseableHttpResponse httpResponse) {
         return httpResponse.getCode() == 200;
