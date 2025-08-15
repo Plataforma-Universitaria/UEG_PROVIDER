@@ -1,7 +1,6 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.apiai.service.AiService;
-import br.ueg.tc.pipa_email.services.PlatformServiceImpl;
 import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
@@ -13,6 +12,7 @@ import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IPlatformService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
@@ -50,8 +50,8 @@ public class StudentService extends InstitutionService {
 
     @Autowired
     AiService<AIClient> aiService;
-    @Autowired
-    PlatformServiceImpl platformService;
+
+    IPlatformService platformService;
 
     private String acuId;
     private String jwt;
