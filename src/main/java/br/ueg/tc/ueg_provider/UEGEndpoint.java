@@ -23,5 +23,4 @@ public interface UEGEndpoint {
     String PRE_GERAR_NOVO_HISTORICO_ACADEMICO = "https://www.app.ueg.br/fenix-back-end/historico_academico/?jwt={0}";
     String GERAR_NOVO_HISTORICO_ACADEMICO = "https://www.app.ueg.br/fenix-back-end/historico_academico/nao_integralizado";
 
-
 }

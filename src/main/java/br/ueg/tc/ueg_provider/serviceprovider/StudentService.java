@@ -1,6 +1,7 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.apiai.service.AiService;
+import br.ueg.tc.pipa_email.services.PlatformServiceImpl;
 import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
@@ -12,15 +13,13 @@ import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IBaseInstitutionProvider;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IPlatformService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
-import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.ai.AIApi;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import br.ueg.tc.ueg_provider.dto.KeyUrl;
+import br.ueg.tc.ueg_provider.dto.Token;
 import br.ueg.tc.ueg_provider.formatter.Formatter;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
 import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
@@ -29,7 +28,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
-import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
+import static br.ueg.tc.ueg_provider.enums.DocEnum.*;
 
 @Service
 @ServiceProviderClass(personas = {"Aluno"})
@@ -50,8 +51,10 @@ public class StudentService extends InstitutionService {
     @Autowired
     AiService<AIClient> aiService;
     @Autowired
-    IPlatformService platformService;
+    PlatformServiceImpl platformService;
+
     private String acuId;
+    private String jwt;
 
     public StudentService() {
         super();
@@ -68,6 +71,25 @@ public class StudentService extends InstitutionService {
 
     public void getPersonId() {
         acuId = getUserData().getPersonId();
+    }
+    public void getPersonJwt() {
+        jwt = getJwt().jwt();
+    }
+
+    public Token getJwt() {
+        HttpGet httpGet = new HttpGet(GET_JWT_TOKEN);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
+            HttpEntity entity = httpResponse.getEntity();
+            if (responseOK(httpResponse)) {
+                return converterUEG.getTokenFromJson(JsonParser.
+                        parseString(EntityUtils.toString(entity)));
+            }
+            throw new UserNotFoundException();
+        } catch (Throwable error) {
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
     }
 
     public IUserData getUserData() throws IntentNotSupportedException, InstitutionCommunicationException {
@@ -426,22 +448,67 @@ public class StudentService extends InstitutionService {
 
             validateStudentEmail(studentData.getEmail());
 
-            String pdfPath = generateAcademicRecordPDF(platformService);
+            String pdfPath = generateFrequencyRecordPDF();
 
             EmailDetails emailDetails = buildEmailFrequencyDetails(studentData, pdfPath);
 
-            return sendEmail(platformService, emailDetails);
+            return sendEmail(emailDetails);
 
         } catch (Exception e) {
             return "Ocorreu um erro ao enviar sua declaração de frequência: " + e.getMessage();
         }
     }
 
+    @ServiceProviderMethod(activationPhrases = {
+            "Me mande meu histórico",
+            "enviar histórico",
+            "histórico academico",
+            "histórico"
+    })
+    public String sendAcademicRecord() {
+        try {
+            getPersonId();
+            getPersonJwt();
 
-    //Métodos internos
+            UserDataUEG studentData = (UserDataUEG) getUserData();
 
-    //TODO: Avaliar o impacto de mudar as keys de IA do provider,
-    // tirando o uso da conta da pipa, mas deixando a API de IA pra universidade usar
+            validateStudentEmail(studentData.getEmail());
+
+            String pdfPath = generateAcademicRecordPDF();
+
+            EmailDetails emailDetails = buildEmailHistoryDetails(studentData, pdfPath);
+
+            return sendEmail(emailDetails);
+
+        } catch (Exception e) {
+            return "Ocorreu um erro ao enviar Histórico academico: " + e.getMessage();
+        }
+    }
+
+    @ServiceProviderMethod(activationPhrases = {
+            "Me mande a declaração de vínculo",
+            "enviar declaração de vínculo",
+            "declaração de vínculo",
+            "vínculo"
+    })
+    public String sendBondDeclaration() {
+        try {
+            getPersonId();
+
+            UserDataUEG studentData = (UserDataUEG) getUserData();
+
+            validateStudentEmail(studentData.getEmail());
+
+            String pdfPath = generateBondRecordPDF();
+
+            EmailDetails emailDetails = buildEmailBondDetails(studentData, pdfPath);
+
+            return sendEmail(emailDetails);
+
+        } catch (Exception e) {
+            return "Ocorreu um erro ao enviar sua declaração de vínculo: " + e.getMessage();
+        }
+    }
 
     private String getDisciplineNameResponse(String discipline, String entityString) {
         discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
@@ -466,7 +533,7 @@ public class StudentService extends InstitutionService {
         }
     }
 
-    private String generateAcademicRecordPDF(IPlatformService platformService) {
+    private String generateAcademicRecordPDF() {
         String attendanceDeclarationHTML = generateNewAcademicRecordHTML();
         return platformService.HTMLToPDF(attendanceDeclarationHTML,
                 ACADEMIC_RECORD.getFolderPath(),
@@ -474,27 +541,96 @@ public class StudentService extends InstitutionService {
 
     }
 
-    public String generateNewAcademicRecordHTML(){
+    private String generateFrequencyRecordPDF() {
+        String attendanceDeclarationHTML = generateNewFrequencyRecordHTML();
+        return platformService.HTMLToPDF(attendanceDeclarationHTML,
+                FREQUENCY_RECORD.getFolderPath(),
+                FREQUENCY_RECORD.getFilePrefix());
 
-            try {
-                HttpPost httpPost = new HttpPost(GERAR_NOVA_DECLARACAO_FREQUENCIA);
-                CloseableHttpResponse httpResponse = httpClient.execute(httpPost, localContext);
-                HttpEntity entity = httpResponse.getEntity();
+    }
 
-                if (responseOK(httpResponse)) {
-                    KeyUrl keyUrl = ((ConverterUEG)converterUEG).getKeyUrlFromJson(
-                            JsonParser.parseString(EntityUtils.toString(entity)));
+    private String generateBondRecordPDF() {
+        String attendanceDeclarationHTML = generateNewBondRecordHTML();
+        return platformService.HTMLToPDF(attendanceDeclarationHTML,
+                FREQUENCY_RECORD.getFolderPath(),
+                FREQUENCY_RECORD.getFilePrefix());
 
-                    if (Objects.nonNull(keyUrl) && !keyUrl.url().isEmpty()) {
-                        return getHTMLFromURL(keyUrl.url());
-                    }
+    }
+
+
+    public String generateNewAcademicRecordHTML() {
+        HttpPost httpPost = new HttpPost(GERAR_NOVO_HISTORICO_ACADEMICO);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("acu_id", acuId, ContentType.TEXT_PLAIN);
+        builder.addTextBody("jwt", jwt, ContentType.TEXT_PLAIN);
+        httpPost.setEntity(builder.build());
+
+        try (CloseableHttpResponse httpResponse = httpClient.execute(httpPost, localContext)) {
+
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                KeyUrl keyUrl = ((ConverterUEG) converterUEG).getKeyUrlFromJson(
+                        JsonParser.parseString(EntityUtils.toString(entity)));
+
+                if (Objects.nonNull(keyUrl) && !keyUrl.url().isEmpty()) {
+                    return getHTMLFromURL(keyUrl.url());
                 }
-                throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
-                        " tente novamente mais tarde");
-            } catch (Throwable error) {
-                throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
-                        " tente novamente mais tarde");
             }
+            throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
+                    " tente novamente mais tarde");
+        } catch (Throwable error) {
+            throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+
+    }
+
+    public String generateNewFrequencyRecordHTML() {
+
+        try {
+            HttpPost httpPost = new HttpPost(GERAR_NOVA_DECLARACAO_FREQUENCIA);
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost, localContext);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                KeyUrl keyUrl = ((ConverterUEG) converterUEG).getKeyUrlFromJson(
+                        JsonParser.parseString(EntityUtils.toString(entity)));
+
+                if (Objects.nonNull(keyUrl) && !keyUrl.url().isEmpty()) {
+                    return getHTMLFromURL(keyUrl.url());
+                }
+            }
+            throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
+                    " tente novamente mais tarde");
+        } catch (Throwable error) {
+            throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
+
+    }
+
+    public String generateNewBondRecordHTML() {
+
+        try {
+            HttpPost httpPost = new HttpPost(GERAR_NOVA_DECLARACAO_VINCULO);
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost, localContext);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                KeyUrl keyUrl = ((ConverterUEG) converterUEG).getKeyUrlFromJson(
+                        JsonParser.parseString(EntityUtils.toString(entity)));
+
+                if (Objects.nonNull(keyUrl) && !keyUrl.url().isEmpty()) {
+                    return getHTMLFromURL(keyUrl.url());
+                }
+            }
+            throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
+                    " tente novamente mais tarde");
+        } catch (Throwable error) {
+            throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+                    " tente novamente mais tarde");
+        }
 
     }
 
@@ -534,7 +670,7 @@ public class StudentService extends InstitutionService {
                 "Declaração_Vínculo", pdfPath);
     }
 
-    private String sendEmail(IPlatformService platformService, EmailDetails emailDetails) {
+    private String sendEmail(EmailDetails emailDetails) {
         if (platformService.sendEmailWithFileAttachment(emailDetails)) {
             return "O documento foi enviado para o seu e-mail acadêmico.";
         }

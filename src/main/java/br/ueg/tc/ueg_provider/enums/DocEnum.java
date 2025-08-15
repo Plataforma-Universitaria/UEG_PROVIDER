@@ -5,7 +5,9 @@ import java.nio.file.Paths;
 
 public enum DocEnum {
 
-    ATTENDANCE_DECLARATION(Paths.get("academic"),"attendance_"),
+    FREQUENCY_RECORD(Paths.get("frequency"),"record_"),
+
+    BOND_RECORD(Paths.get("bonded"),"record_"),
 
     ACADEMIC_RECORD(Paths.get("academic"), "record_");
 
