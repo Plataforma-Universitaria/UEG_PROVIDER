@@ -1,9 +1,7 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
-import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IPlatformService;
-import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
+import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
 import br.ueg.tc.pipa_integrator.interfaces.providers.service.IServiceProvider;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
@@ -47,7 +45,7 @@ public abstract class InstitutionService implements IServiceProvider {
 
     void setUserAccessData(List<KeyValue> keyValueList) {
         this.httpCookieStore = new BasicCookieStore();
-        for (KeyValue accessData : keyValueList){
+        for (KeyValue accessData : keyValueList) {
             BasicClientCookie basicClientCookie = new BasicClientCookie(accessData.getKey(), accessData.getValue());
             basicClientCookie.setDomain("www.app.ueg.br");
             basicClientCookie.setPath("/");
@@ -58,8 +56,8 @@ public abstract class InstitutionService implements IServiceProvider {
     /**
      * Extrai dinamicamente um campo do JSON retornado pela UEG.
      *
-     * @param json           JSON de entrada (string)
-     * @param field  Campo que será extraído
+     * @param json  JSON de entrada (string)
+     * @param field Campo que será extraído
      * @return valor do campo como String (ou null se não existir)
      */
     public String extractFromJson(String json, String field) {

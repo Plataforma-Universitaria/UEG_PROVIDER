@@ -12,7 +12,7 @@ import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IPlatformService;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IEmailService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
@@ -42,7 +42,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
-import static br.ueg.tc.ueg_provider.enums.DocEnum.*;
+import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
+import static br.ueg.tc.ueg_provider.enums.DocEnum.FREQUENCY_RECORD;
 
 @Service
 @ServiceProviderClass(personas = {"Aluno"})
@@ -52,7 +53,7 @@ public class StudentService extends InstitutionService {
     private AiService<AIClient> aiService;
 
     @Autowired
-    private IPlatformService platformService;
+    private IEmailService platformService;
 
     private String acuId;
     private String jwt;
@@ -74,6 +75,7 @@ public class StudentService extends InstitutionService {
     public void getPersonId() {
         acuId = getUserData().getPersonId();
     }
+
     public void getPersonJwt() {
         jwt = getJwt().jwt();
     }
