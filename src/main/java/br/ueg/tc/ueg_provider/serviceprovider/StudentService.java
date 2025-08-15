@@ -1,7 +1,6 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
 import br.ueg.tc.apiai.service.AiService;
-import br.ueg.tc.pipa_email.services.PlatformServiceImpl;
 import br.ueg.tc.pipa_integrator.ai.AIClient;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
@@ -13,7 +12,7 @@ import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
-import br.ueg.tc.pipa_integrator.interfaces.providers.IPlatformService;
+import br.ueg.tc.pipa_integrator.interfaces.providers.IEmailService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.IUserData;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
@@ -35,7 +34,6 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -44,17 +42,18 @@ import java.util.Objects;
 import java.util.Set;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
-import static br.ueg.tc.ueg_provider.enums.DocEnum.*;
+import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
+import static br.ueg.tc.ueg_provider.enums.DocEnum.FREQUENCY_RECORD;
 
 @Service
 @ServiceProviderClass(personas = {"Aluno"})
 public class StudentService extends InstitutionService {
 
     @Autowired
-    AiService<AIClient> aiService;
+    private AiService<AIClient> aiService;
 
     @Autowired
-    PlatformServiceImpl platformService;
+    private IEmailService platformService;
 
     private String acuId;
     private String jwt;
@@ -67,6 +66,7 @@ public class StudentService extends InstitutionService {
         super(user);
     }
 
+
     private boolean responseOK(CloseableHttpResponse httpResponse) {
         return httpResponse.getCode() == 200;
     }
@@ -75,6 +75,7 @@ public class StudentService extends InstitutionService {
     public void getPersonId() {
         acuId = getUserData().getPersonId();
     }
+
     public void getPersonJwt() {
         jwt = getJwt().jwt();
     }
