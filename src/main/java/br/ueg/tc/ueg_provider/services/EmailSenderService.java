@@ -36,15 +36,6 @@ public class EmailSenderService {
     @Value("${spring.mail.password}")
     private String EMAIL_PASSWORD;
 
-    @PostConstruct
-    public void debugProps() {
-        System.out.println("spring.mail.host=" + SMTP_HOST);
-        System.out.println("spring.mail.port=" + SMTP_PORT);
-        System.out.println("spring.mail.username=" + EMAIL_USER);
-        System.out.println("spring.mail.password=" + EMAIL_PASSWORD);
-    }
-
-
     private boolean sendEmail(EmailDetails emailDetails, boolean withAttachment)
             throws ErrorFileNotFound, ErrorCouldNotDeleteFile {
         try {
