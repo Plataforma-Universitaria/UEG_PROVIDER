@@ -53,7 +53,7 @@ public class StudentService extends InstitutionService {
     private AiService<AIClient> aiService;
 
     @Autowired
-    private IEmailService platformService;
+    private IEmailService emailService;
 
     private String acuId;
     private String jwt;
@@ -65,6 +65,7 @@ public class StudentService extends InstitutionService {
     public StudentService(IUser user) {
         super(user);
     }
+
 
 
     private boolean responseOK(CloseableHttpResponse httpResponse) {
@@ -539,7 +540,7 @@ public class StudentService extends InstitutionService {
 
     private String generateAcademicRecordPDF() {
         String attendanceDeclarationHTML = generateNewAcademicRecordHTML();
-        return platformService.HTMLToPDF(attendanceDeclarationHTML,
+        return emailService.HTMLToPDF(attendanceDeclarationHTML,
                 ACADEMIC_RECORD.getFolderPath(),
                 ACADEMIC_RECORD.getFilePrefix());
 
@@ -547,7 +548,7 @@ public class StudentService extends InstitutionService {
 
     private String generateFrequencyRecordPDF() {
         String attendanceDeclarationHTML = generateNewFrequencyRecordHTML();
-        return platformService.HTMLToPDF(attendanceDeclarationHTML,
+        return emailService.HTMLToPDF(attendanceDeclarationHTML,
                 FREQUENCY_RECORD.getFolderPath(),
                 FREQUENCY_RECORD.getFilePrefix());
 
@@ -555,7 +556,7 @@ public class StudentService extends InstitutionService {
 
     private String generateBondRecordPDF() {
         String attendanceDeclarationHTML = generateNewBondRecordHTML();
-        return platformService.HTMLToPDF(attendanceDeclarationHTML,
+        return emailService.HTMLToPDF(attendanceDeclarationHTML,
                 FREQUENCY_RECORD.getFolderPath(),
                 FREQUENCY_RECORD.getFilePrefix());
 
@@ -675,7 +676,7 @@ public class StudentService extends InstitutionService {
     }
 
     private String sendEmail(EmailDetails emailDetails) {
-        if (platformService.sendEmailWithFileAttachment(emailDetails)) {
+        if (emailService.sendEmailWithFileAttachment(emailDetails)) {
             return "O documento foi enviado para o seu e-mail acadêmico.";
         }
         return "Houve um erro ao enviar seu documento, tente novamente mais tarde";
