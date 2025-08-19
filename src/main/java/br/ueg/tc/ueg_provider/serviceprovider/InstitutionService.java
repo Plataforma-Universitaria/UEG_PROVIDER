@@ -5,6 +5,7 @@ import br.ueg.tc.pipa_integrator.interfaces.providers.KeyValue;
 import br.ueg.tc.pipa_integrator.interfaces.providers.service.IServiceProvider;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
+import br.ueg.tc.ueg_provider.services.EmailServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
@@ -23,8 +24,10 @@ public abstract class InstitutionService implements IServiceProvider {
     protected final CloseableHttpClient httpClient;
     protected final ConverterUEG converterUEG;
     protected final UEGProvider uegProvider;
+    protected final EmailServiceImpl emailService;
 
     public InstitutionService() {
+        this.emailService = new EmailServiceImpl();
         this.httpCookieStore = new BasicCookieStore();
         this.localContext = HttpClientContext.create();
         this.httpClient =
@@ -34,6 +37,7 @@ public abstract class InstitutionService implements IServiceProvider {
     }
 
     public InstitutionService(IUser user) {
+        this.emailService = new EmailServiceImpl();
         setUserAccessData(user.getKeyValueList());
         this.localContext = HttpClientContext.create();
         this.httpClient =
