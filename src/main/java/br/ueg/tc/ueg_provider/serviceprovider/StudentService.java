@@ -141,7 +141,7 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha nota em matemática",
-            "média geral em programação", "qual minha nota em portugues"})
+            "média geral em programação", "qual minha nota em portugues", "nota em infra"})
     public List<IDisciplineGrade> getGradeByDiscipline(String discipline) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
@@ -192,7 +192,8 @@ public class StudentService extends InstitutionService {
     }
 
 
-    @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "horário",
+            "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
     public String getAllSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -216,7 +217,8 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas de segunda",
-            "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje", "Aulas de amanhã"})
+            "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje",
+            "Aulas de amanhã"})
     public String getScheduleByDay(String day) {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -245,10 +247,9 @@ public class StudentService extends InstitutionService {
     }
 
 
-    @ServiceProviderMethod(activationPhrases = {"Quais minha aulas em matemática",
+    @ServiceProviderMethod(activationPhrases = {"Quais minha aulas em mat",
             "Aula de português", "Quando é a aula de Português",
-            "Quando é minha aula de infra",
-            "Quando é minha aula de INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO"})
+            "Quando é minha aula de infra",})
     public String getScheduleByDisciplineName(String disciplineToGetSchedule) {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -276,10 +277,11 @@ public class StudentService extends InstitutionService {
 
     @ServiceProviderMethod(activationPhrases = {
             "Ajuda",
+            "Help",
             "O que você pode fazer",
             "O que posso fazer",
             "Funcionalidades"})
-    public String getAllFunctionalities() {
+    public String getFunctionalities() {
         return """
                 Como Aluno, você pode realizar as seguintes consultas:
                 
@@ -309,7 +311,7 @@ public class StudentService extends InstitutionService {
                 """;
     }
 
-    @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português", "Quais minhas faltas em matematica", "Faltas em biologia II"})
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português", "Quais minhas faltas em matematica", "Faltas em biologia II", "Faltas"})
     public String getAbsencesByDiscipline(String discipline) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);

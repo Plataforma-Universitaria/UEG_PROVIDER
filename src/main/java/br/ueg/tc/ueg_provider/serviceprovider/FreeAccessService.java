@@ -40,9 +40,10 @@ public class FreeAccessService extends InstitutionService {
     @ServiceProviderMethod(activationPhrases = {
             "Contato",
             "telefone da UEG",
-            "Email da secretaria"
+            "Email da secretaria",
+            "Contatos da instituição"
     })
-    public String getInstitutionContact() {
+    public String getContact() {
         return """
                  Contatos institucionais da UEG:
                 

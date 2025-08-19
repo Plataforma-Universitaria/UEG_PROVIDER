@@ -17,18 +17,19 @@ public interface IAIApi {
     String guessDisciplineNameFromIDiscipline(String disciplineIntent, List<? extends IDiscipline> disciplines);
 
     String startDisciplineNameQuestion = """
-        Você é uma ferramenta que identifica a disciplina mencionada em um texto.
+        Você é uma ferramenta que identifica a disciplina pelo seu nome comum.
         As disciplinas conhecidas são:
         """;
 
     String endDisciplineNameQuestion = """
             Retorne o nome completo mais próximo:
             - Corrija erros: "prog web" → "Programação para Web"
+            - Decodifique abreviações: "infra" -> "INFRAESTRUTURA"
             - Use algarismos romanos: "Econometria 1" → "Econometria I"
             - Decodifique siglas: "PIASI" → "Prática Interdisciplinar..." "prog" -> "programação" "mobile" -> dispositivos móveis
             Se nenhuma for compatível, retorne: 'NENHUMA'.
             Qual é a disciplina?
-            """;
+           \s""";
 
 
     String startWeekNameQuestion = """
