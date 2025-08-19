@@ -258,7 +258,7 @@ public class Formatter {
     public String formatDisciplineGrade(List<IDisciplineGrade> iDisciplineGrades) {
         StringBuilder stringBuilder = new StringBuilder();
         if (iDisciplineGrades.isEmpty())
-            return "Não encontrei nenhuma atividade de extensão!";
+            return "Não encontrei nenhuma nota associada a essa diciplina!";
         stringBuilder.append("Encontrei as seguintes informações:\n");
         iDisciplineGrades.forEach(disciplineGrade -> {
             stringBuilder
