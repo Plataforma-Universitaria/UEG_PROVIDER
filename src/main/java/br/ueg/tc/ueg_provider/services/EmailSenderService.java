@@ -43,14 +43,17 @@ public class EmailSenderService {
 
             Email email = withAttachment ? buildEmailWithAttachment(emailDetails)
                     : buildEmailWithoutAttachment(emailDetails);
+            System.out.println("Sending email " + email.toString());
 
             Thread emailThread = new Thread(() -> {
                 try {
                     mailer.sendMail(email);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    System.out.println("Error sending email " + email.toString());
                 } finally {
                     deleteFile(emailDetails.attachmentFilePath());
+                    System.out.println("Deleted file " + emailDetails.attachmentFilePath());
                 }
             });
 
