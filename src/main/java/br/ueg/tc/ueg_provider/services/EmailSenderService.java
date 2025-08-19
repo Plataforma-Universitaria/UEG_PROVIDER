@@ -5,6 +5,7 @@ import br.ueg.tc.pipa_integrator.exceptions.files.ErrorFileNotFound;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.Mailer;
@@ -34,6 +35,15 @@ public class EmailSenderService {
 
     @Value("${spring.mail.password}")
     private String EMAIL_PASSWORD;
+
+    @PostConstruct
+    public void debugProps() {
+        System.out.println("spring.mail.host=" + SMTP_HOST);
+        System.out.println("spring.mail.port=" + SMTP_PORT);
+        System.out.println("spring.mail.username=" + EMAIL_USER);
+        System.out.println("spring.mail.password=" + EMAIL_PASSWORD);
+    }
+
 
     private boolean sendEmail(EmailDetails emailDetails, boolean withAttachment)
             throws ErrorFileNotFound, ErrorCouldNotDeleteFile {
