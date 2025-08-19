@@ -52,6 +52,9 @@ public class StudentService extends InstitutionService {
     @Autowired
     private AiService<AIClient> aiService;
 
+    @Autowired
+    private IEmailService emailService;
+
     private String acuId;
     private String jwt;
 

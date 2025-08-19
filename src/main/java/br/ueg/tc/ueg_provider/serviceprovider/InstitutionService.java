@@ -24,10 +24,8 @@ public abstract class InstitutionService implements IServiceProvider {
     protected final CloseableHttpClient httpClient;
     protected final ConverterUEG converterUEG;
     protected final UEGProvider uegProvider;
-    protected final EmailServiceImpl emailService;
 
     public InstitutionService() {
-        this.emailService = new EmailServiceImpl();
         this.httpCookieStore = new BasicCookieStore();
         this.localContext = HttpClientContext.create();
         this.httpClient =
@@ -37,7 +35,6 @@ public abstract class InstitutionService implements IServiceProvider {
     }
 
     public InstitutionService(IUser user) {
-        this.emailService = new EmailServiceImpl();
         setUserAccessData(user.getKeyValueList());
         this.localContext = HttpClientContext.create();
         this.httpClient =
