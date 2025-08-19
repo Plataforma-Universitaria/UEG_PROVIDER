@@ -663,14 +663,14 @@ public class StudentService extends InstitutionService {
 
     private EmailDetails buildEmailFrequencyDetails(UserDataUEG studentData, String pdfPath) {
         return new EmailDetails(studentData.getFirstName(), studentData.getEmail(),
-                "Declaração de Frequência UEG",
+                "DECLARAÇÃO DE FREQUÊNCIA UEG",
                 "Olá, segue em anexo sua Declaração de frequência da UEG",
                 "Declaração_Frequência", pdfPath);
     }
 
     private EmailDetails buildEmailBondDetails(UserDataUEG studentData, String pdfPath) {
         return new EmailDetails(studentData.getFirstName(), studentData.getEmail(),
-                "HISTÓRICO ACADÊMICO UEG",
+                "DECLARAÇÃO DE VÍNCULO UEG",
                 "Olá, segue em anexo sua Declaração de vínculo da UEG",
                 "Declaração_Vínculo", pdfPath);
     }
