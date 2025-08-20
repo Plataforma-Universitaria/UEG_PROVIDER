@@ -26,6 +26,7 @@ import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
 import br.ueg.tc.ueg_provider.infos.UserDataUEG;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -45,6 +46,7 @@ import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
 import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
 import static br.ueg.tc.ueg_provider.enums.DocEnum.FREQUENCY_RECORD;
 
+@Slf4j
 @Service
 @ServiceProviderClass(personas = {"Aluno"})
 public class StudentService extends InstitutionService {
@@ -65,7 +67,6 @@ public class StudentService extends InstitutionService {
     public StudentService(IUser user) {
         super(user);
     }
-
 
 
     private boolean responseOK(CloseableHttpResponse httpResponse) {
@@ -141,8 +142,8 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha nota em matemática",
-            "média geral em programação", "qual minha nota em portugues", "nota em infra"})
-    public List<IDisciplineGrade> getGradeByDiscipline(String discipline) {
+            "média geral em programação", "qual minha nota em portugues", "nota em infra", "nota em prog"})
+    public String getGradesByDiscipline(String discipline) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
         try {
@@ -153,9 +154,14 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 Formatter formatter = new Formatter();
                 if (entityString == null || entityString.isEmpty()) return null;
-                discipline = getDisciplineNameResponse(discipline, entityString);
-                return formatter.disciplineGradeByDisciplineName(discipline,
-                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString)));
+                discipline = getDisciplineNameResponse(
+                        discipline,
+                        formatter.formatDiscipline(
+                                converterUEG.getDisciplinesFromJson((JsonArray)
+                                        JsonParser.parseString(entityString))));
+
+                return formatter.formatDisciplineGrade(formatter.disciplineGradeByDisciplineName(discipline,
+                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString))));
 
             } else {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção da nota. Tente novamente mais tarde.");
@@ -518,7 +524,13 @@ public class StudentService extends InstitutionService {
     }
 
     private String getDisciplineNameResponse(String discipline, String entityString) {
-        discipline = aiService.sendPrompt(AIApi.startDisciplineNameQuestion + entityString + AIApi.endDisciplineNameQuestion + discipline);
+        String disciplineNameResponse =
+                AIApi.startDisciplineNameQuestion +
+                entityString +
+                AIApi.endDisciplineNameQuestion +
+                discipline;
+
+        discipline = aiService.sendPrompt(disciplineNameResponse);
         return discipline;
     }
 
