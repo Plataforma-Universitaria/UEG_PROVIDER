@@ -23,12 +23,12 @@ public interface IAIApi {
 
     String endDisciplineNameQuestion = """
             Retorne o nome completo mais próximo:
-            - Corrija erros: "prog web" → "Programação para Web"
+            - Corrija erros: "prog web" → "PROGRAMAÇÃO WEB"
             - Decodifique abreviações: "infra" -> "INFRAESTRUTURA"
             - Use algarismos romanos: "Econometria 1" → "Econometria I"
             - Decodifique siglas: "PIASI" → "Prática Interdisciplinar..." "prog" -> "programação" "mobile" -> dispositivos móveis
             Se nenhuma for compatível, retorne: 'NENHUMA'.
-            Qual é a disciplina?
+            Qual é a disciplina e capslock?
            \s""";
 
 
