@@ -6,13 +6,13 @@ public abstract class AIApi implements IAIApi{
 
     protected String getDisciplineNamesMessage(String disciplineIntentList, List<String> disciplinesNames) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(startDisciplineNameQuestion);
+        stringBuilder.append(disciplineNameQuestion);
         for (String disciplineName : disciplinesNames) {
             stringBuilder.append(disciplineName);
             stringBuilder.append(", ");
         }
         stringBuilder.replace(stringBuilder.lastIndexOf(","), stringBuilder.length(), ".");
-        stringBuilder.append(endDisciplineNameQuestion.replace("?", disciplineIntentList.toUpperCase().trim()));
+        stringBuilder.append(disciplineNameQuestion.replace("?", disciplineIntentList.toUpperCase().trim()));
         return stringBuilder.toString().trim();
     }
 

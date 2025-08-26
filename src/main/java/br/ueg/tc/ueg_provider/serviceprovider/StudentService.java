@@ -358,7 +358,7 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 Formatter formatter = new Formatter();
-                return formatter.formatDiscipline(formatter.disciplineByStatus("aprovado",
+                return "*Disciplinas Concluídas:* \n" + formatter.formatDiscipline(formatter.disciplineByStatus("aprovado",
                         converterUEG.getDisciplinesFromJson(
                                 ((JsonArray) JsonParser.parseString(entityString)))
                 ));
@@ -525,9 +525,9 @@ public class StudentService extends InstitutionService {
 
     private String getDisciplineNameResponse(String discipline, String entityString) {
         String disciplineNameResponse =
-                AIApi.startDisciplineNameQuestion +
+                AIApi.disciplineNameQuestion +
                 entityString +
-                AIApi.endDisciplineNameQuestion +
+                "\n Entrada: " +
                 discipline;
 
         discipline = aiService.sendPrompt(disciplineNameResponse);
