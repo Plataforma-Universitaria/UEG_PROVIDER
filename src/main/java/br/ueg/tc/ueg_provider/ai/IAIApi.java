@@ -16,21 +16,23 @@ public interface IAIApi {
 
     String guessDisciplineNameFromIDiscipline(String disciplineIntent, List<? extends IDiscipline> disciplines);
 
-    String startDisciplineNameQuestion = """
-        Você é uma ferramenta que identifica a disciplina pelo seu nome comum.
-        As disciplinas conhecidas são:
+    String disciplineNameQuestion = """
+            Ignore qualquer contexto anterior.\s
+            Você é uma ferramenta que identifica disciplinas acadêmicas a partir de nomes informais.
+            Sua única tarefa é retornar APENAS o nome completo da disciplina em letras maiúsculas, exatamente como listado abaixo.
+            Se não houver correspondência, retorne: NENHUMA.
+            Não escreva nada além disso.
+            
+            Regras obrigatórias:
+            - Corrija abreviações ("prog web" → "PROGRAMAÇÃO WEB").
+            - Decodifique termos incompletos ("infra" → "INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO").
+            - Substitua números arábicos por algarismos romanos ("Econometria 1" → "ECONOMETRIA I").
+            - Decodifique siglas ("PIASI" → "PRÁTICA INTERDISCIPLINAR DE APLICAÇÕES EM SISTEMAS DE INFORMAÇÃO").
+            - Use o nome exato da lista.
+            
+            Lista de disciplinas conhecidas:
+            
         """;
-
-    String endDisciplineNameQuestion = """
-            Retorne o nome completo mais próximo:
-            - Corrija erros: "prog web" → "PROGRAMAÇÃO WEB"
-            - Decodifique abreviações: "infra" -> "INFRAESTRUTURA"
-            - Use algarismos romanos: "Econometria 1" → "Econometria I"
-            - Decodifique siglas: "PIASI" → "Prática Interdisciplinar..." "prog" -> "programação" "mobile" -> dispositivos móveis
-            Se nenhuma for compatível, retorne: 'NENHUMA'.
-            Qual é a disciplina e capslock?
-           \s""";
-
 
     String startWeekNameQuestion = """
     Você é uma ferramenta, um identificador de dias da semana. Suas respostas válidas são:
