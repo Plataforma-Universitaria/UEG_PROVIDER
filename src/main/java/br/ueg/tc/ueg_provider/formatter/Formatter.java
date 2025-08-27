@@ -21,7 +21,7 @@ public class Formatter {
         if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
-                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+                            discipline.getDisciplineName().trim().replaceAll("\\s+", " ").equalsIgnoreCase(disciplineName.trim())).toList();
         }
         return null;
     }
@@ -30,7 +30,7 @@ public class Formatter {
         if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
-                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+                            discipline.getDisciplineName().trim().replaceAll("\\s+", " ").equalsIgnoreCase(disciplineName.trim())).toList();
         }
         return null;
     }
@@ -39,7 +39,7 @@ public class Formatter {
         if (disciplines != null && !disciplines.isEmpty()) {
             return disciplines.stream()
                     .filter(discipline ->
-                            discipline.getDisciplineName().trim().equalsIgnoreCase(disciplineName.trim())).toList();
+                            discipline.getDisciplineName().trim().replaceAll("\\s+", " ").equalsIgnoreCase(disciplineName.trim())).toList();
         }
         return null;
     }
