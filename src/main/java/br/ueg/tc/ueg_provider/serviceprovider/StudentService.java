@@ -115,7 +115,8 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha média geral",
-            "média geral", "qual minha nota geral", "média", "qual a nota geral?"})
+            "média geral", "qual minha nota geral", "média", "qual a nota geral?"},
+    actionName = "Obter a média geral")
     public String getGeneralGrade() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_ACADEMICOS);
@@ -142,7 +143,9 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha nota em matemática",
-            "média geral em programação", "qual minha nota em portugues", "nota em infra", "nota em prog"})
+            "média geral em programação", "qual minha nota em portugues",
+            "nota em infra", "nota em prog"},
+    actionName = "Obter as notas de uma disciplina")
     public String getGradesByDiscipline(String discipline) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
@@ -173,7 +176,8 @@ public class StudentService extends InstitutionService {
     }
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas notas do primeiro semestre",
-            "notas do periodo 7", "3° periodo notas"})
+            "notas do periodo 7", "3° periodo notas"},
+    actionName = "Obter notas de um semestre")
     public String getGradesBySemester(String semester) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
@@ -199,7 +203,8 @@ public class StudentService extends InstitutionService {
 
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas?", "horário",
-            "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"})
+            "Aulas da semana", "Quais minhas aulas da semana", "Horário de aula"},
+    actionName = "Consultar o horário de aula semanal")
     public String getAllSchedule() throws IntentNotSupportedException {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -224,7 +229,8 @@ public class StudentService extends InstitutionService {
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas aulas de segunda",
             "Aula de terça", "Aulas de Sábado", "Quais minhas aulas hoje",
-            "Aulas de amanhã"})
+            "Aulas de amanhã"},
+    actionName = "Consultar as aulas de um dia")
     public String getScheduleByDay(String day) {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -255,7 +261,8 @@ public class StudentService extends InstitutionService {
 
     @ServiceProviderMethod(activationPhrases = {"Quais minha aulas em mat",
             "Aula de português", "Quando é a aula de Português",
-            "Quando é minha aula de infra",})
+            "Quando é minha aula de infra"},
+    actionName = "Consultar horário das aulas de uma disciplina")
     public String getScheduleByDisciplineName(String disciplineToGetSchedule) {
         HttpGet httpGet = new HttpGet(HORARIO_AULA);
         try {
@@ -281,43 +288,11 @@ public class StudentService extends InstitutionService {
         }
     }
 
-    @ServiceProviderMethod(activationPhrases = {
-            "Ajuda",
-            "Help",
-            "O que você pode fazer",
-            "O que posso fazer",
-            "Funcionalidades"})
-    public String getFunctionalities() {
-        return """
-                Como Aluno, você pode realizar as seguintes consultas:
-                
-                **Disciplinas e Notas**
-                • Ver sua média geral.
-                • Consultar notas por disciplina.
-                • Consultar notas por período/semestre.
-                • Ver disciplinas já concluídas.
-                
-                **Horários de Aula**
-                • Ver todas as aulas da semana.
-                • Consultar aulas por dia específico.
-                • Ver quando tem aula de determinada disciplina.
-                
-                **Faltas**
-                • Ver faltas por disciplina.
-                
-                **Atividades Complementares**
-                • Consultar todas as atividades complementares com detalhes.
-                • Ver um resumo das horas complementares realizadas.
-                
-                **Atividades de Extensão**
-                • Ver as atividades de extensão cadastradas e suas cargas horárias.
-                
-                **Documentos Acadêmicos**
-                • Solicitar o envio do Histórico Acadêmico para seu e-mail institucional.
-                """;
-    }
 
-    @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português", "Quais minhas faltas em matematica", "Faltas em biologia II", "Faltas"})
+    @ServiceProviderMethod(activationPhrases = {"Quais minhas faltas em português",
+            "Quais minhas faltas em matematica",
+            "Faltas em biologia II", "Faltas"},
+    actionName = "Consultar as faltas de uma disciplina")
     public String getAbsencesByDiscipline(String discipline) {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
@@ -347,7 +322,10 @@ public class StudentService extends InstitutionService {
 
     }
 
-    @ServiceProviderMethod(activationPhrases = {"Quais materias ja fiz", "materias concluidas", "Disciplinas completas"})
+    @ServiceProviderMethod(activationPhrases = {"Quais materias ja fiz",
+            "materias concluidas",
+            "Disciplinas completas"},
+    actionName = "Consultar as matéria já concluídas")
     public String getCompletedCourses() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
@@ -373,7 +351,11 @@ public class StudentService extends InstitutionService {
     }
 
 
-    @ServiceProviderMethod(activationPhrases = {"Atividades complementares", "Como estão minhas atividades complementares", "detalhes das atividades complementares", "todas as atividades complementares"})
+    @ServiceProviderMethod(activationPhrases = {"Atividades complementares",
+            "Como estão minhas atividades complementares",
+            "detalhes das atividades complementares",
+            "todas as atividades complementares"},
+    actionName = "Consultar detalhes das atividades complementares")
     public String getAllDetailedComplementaryActivities() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_ATV_COMPLEMENTARES + acuId + "&page=1&rows_limit=1000&sort_by=&descending=f");
@@ -398,7 +380,11 @@ public class StudentService extends InstitutionService {
 
     }
 
-    @ServiceProviderMethod(activationPhrases = {"Resumo da atividades complementares", "Resuma como estão minhas atividades complementares", "status das atividades complementares", "resumo atv complementares"})
+    @ServiceProviderMethod(activationPhrases = {"Resumo da atividades complementares",
+            "Resuma como estão minhas atividades complementares",
+            "status das atividades complementares",
+            "resumo atv complementares"},
+    actionName = "Consultar um resumo das atividades complementares")
     public String getDigestComplementaryActivities() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_ATV_COMPLEMENTARES_HORAS + acuId);
@@ -422,7 +408,11 @@ public class StudentService extends InstitutionService {
 
     }
 
-    @ServiceProviderMethod(activationPhrases = {"Status das horas de extensão", "Resuma como estão minhas atividades de extensão", "status das atividades complementares", "Horas de extensão"})
+    @ServiceProviderMethod(activationPhrases = {"Status das horas de extensão",
+            "Resuma como estão minhas atividades de extensão",
+            "status das atividades complementares",
+            "Horas de extensão"},
+    actionName = "Consultar atividades de extensão")
     public String getAllExtensionActivities() {
         getPersonId();
         HttpGet httpGet = new HttpGet(DADOS_ATV_EXTENSAO + acuId);
@@ -452,7 +442,8 @@ public class StudentService extends InstitutionService {
             "enviar declaração de frequencia",
             "declaração de frequencia",
             "declaracao de freq"
-    })
+    },
+    actionName = "Receber a declaração de frequência por email")
     public String sendFrequencyDeclaration() {
         try {
             getPersonId();
@@ -477,7 +468,8 @@ public class StudentService extends InstitutionService {
             "enviar histórico",
             "histórico academico",
             "histórico"
-    })
+    },
+            actionName = "Receber o histórico acadêmico por email")
     public String sendAcademicRecord() {
         try {
             getPersonId();
@@ -503,7 +495,8 @@ public class StudentService extends InstitutionService {
             "enviar declaração de vínculo",
             "declaração de vínculo",
             "vínculo"
-    })
+    },
+            actionName = "Receber a declaração de vínculo por email")
     public String sendBondDeclaration() {
         try {
             getPersonId();

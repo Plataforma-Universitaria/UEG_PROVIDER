@@ -113,8 +113,8 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     @Override
-    public List<KeyValue> refreshUserAccessData(List<KeyValue> accessData) {
-        enterPortal("Aluno");
+    public List<KeyValue> refreshUserAccessData(List<KeyValue> accessData, List<String> personas) {
+        personas.forEach(this::enterPortal);
         return cookiesToKeyValue();
     }
 
