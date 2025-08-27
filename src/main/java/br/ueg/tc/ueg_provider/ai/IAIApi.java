@@ -17,21 +17,31 @@ public interface IAIApi {
     String guessDisciplineNameFromIDiscipline(String disciplineIntent, List<? extends IDiscipline> disciplines);
 
     String disciplineNameQuestion = """
-            Ignore qualquer contexto anterior.\s
-            Você é uma ferramenta que identifica disciplinas acadêmicas a partir de nomes informais.
-            Sua única tarefa é retornar APENAS o nome completo da disciplina em letras maiúsculas, exatamente como listado abaixo.
-            Se não houver correspondência, retorne: NENHUMA.
-            Não escreva nada além disso.
-            
+            Ignore qualquer contexto anterior.
+        
+                Você é uma ferramenta de mapeamento de disciplinas acadêmicas. \s
+                Sua única tarefa é analisar um nome de disciplina fornecido de forma abreviada, incompleta ou incorreta e retornar **exclusivamente** o nome completo da disciplina, em letras MAIÚSCULAS, exatamente como listado na tabela de referência.
+                Se não houver correspondência, responda apenas com: NENHUMA. \s
+                Não escreva nada além disso.
+        
+                Regras obrigatórias:
+                - Corrija abreviações. Ex.: "prog web" → "PROGRAMAÇÃO WEB".
+                - Decodifique termos incompletos. Ex.: "infra" → "INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO".
+                - Substitua números arábicos por algarismos romanos. Ex.: "Econometria 1" → "ECONOMETRIA I".
+                - Decodifique siglas. Ex.: "PIASI" → "PRÁTICA INTERDISCIPLINAR DE APLICAÇÕES EM SISTEMAS DE INFORMAÇÃO".
+                - Utilize somente nomes exatos da lista de disciplinas conhecidas (abaixo).
+        
+                Lista de disciplinas conhecidas:
+        
             Regras obrigatórias:
             - Corrija abreviações ("prog web" → "PROGRAMAÇÃO WEB").
             - Decodifique termos incompletos ("infra" → "INFRAESTRUTURA PARA SISTEMAS DE INFORMAÇÃO").
             - Substitua números arábicos por algarismos romanos ("Econometria 1" → "ECONOMETRIA I").
             - Decodifique siglas ("PIASI" → "PRÁTICA INTERDISCIPLINAR DE APLICAÇÕES EM SISTEMAS DE INFORMAÇÃO").
             - Use o nome exato da lista.
-            
+        
             Lista de disciplinas conhecidas:
-            
+        
         """;
 
     String startWeekNameQuestion = """
