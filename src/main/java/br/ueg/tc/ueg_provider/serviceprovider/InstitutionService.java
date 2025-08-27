@@ -24,6 +24,7 @@ public abstract class InstitutionService implements IServiceProvider {
     protected final CloseableHttpClient httpClient;
     protected final ConverterUEG converterUEG;
     protected final UEGProvider uegProvider;
+    protected final IUser user;
 
     public InstitutionService() {
         this.httpCookieStore = new BasicCookieStore();
@@ -32,9 +33,12 @@ public abstract class InstitutionService implements IServiceProvider {
                 HttpClients.custom().setDefaultCookieStore(httpCookieStore).build();
         this.converterUEG = new ConverterUEG();
         this.uegProvider = new UEGProvider();
+        this.user = null;
+
     }
 
     public InstitutionService(IUser user) {
+        this.user = user;
         setUserAccessData(user.getKeyValueList());
         this.localContext = HttpClientContext.create();
         this.httpClient =
@@ -52,6 +56,10 @@ public abstract class InstitutionService implements IServiceProvider {
             basicClientCookie.setPath("/");
             this.httpCookieStore.addCookie(basicClientCookie);
         }
+    }
+
+    List<String> getUserPersonas(){
+        return this.user.getPersonas();
     }
 
     /**

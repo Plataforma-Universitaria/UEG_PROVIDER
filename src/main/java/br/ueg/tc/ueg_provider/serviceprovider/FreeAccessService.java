@@ -3,6 +3,7 @@ package br.ueg.tc.ueg_provider.serviceprovider;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
 import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
+import br.ueg.tc.ueg_provider.services.UtilsService;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.UEG_CONTATOS;
 
@@ -21,7 +22,7 @@ public class FreeAccessService extends InstitutionService {
             "Me conte a história da UEG",
             "Criação da UEG",
             "Como foi feita a UEG"
-    })
+    }, actionName = "Saber sobre a história da ueg")
     public String getUEGHistory() {
         return """
                 A criação da Universidade Estadual de Goiás (UEG) remonta à década de 1940, com registros de intenção já naquela época. 
@@ -42,7 +43,7 @@ public class FreeAccessService extends InstitutionService {
             "telefone da UEG",
             "Email da secretaria",
             "Contatos da instituição"
-    })
+    }, actionName = "Obter a lista de contatos da UEG")
     public String getContact() {
         return """
                  Contatos institucionais da UEG:
@@ -74,5 +75,30 @@ public class FreeAccessService extends InstitutionService {
                 • E-mail: secretaria.campuscentral@ueg.br
                 
                  Para mais informações, acesse:\s""" + UEG_CONTATOS;
+    }
+
+    @ServiceProviderMethod(activationPhrases = {
+            "Ajuda",
+            "Funcionalidades",
+            "O que pode fazer",
+            "Ações disponíveis"
+    }, actionName = "Consultar serviços disponíveis")
+    public String getFunctionalities(){
+        StringBuilder functionalities = new StringBuilder();
+        functionalities.append("Você pode:\n");
+        getUserPersonas().forEach(persona -> {
+            functionalities.append(getFunctionalitiesByPersona(persona));
+                }
+        );
+        return functionalities.toString();
+    }
+
+    private String getFunctionalitiesByPersona(String persona) {
+        StringBuilder functionalities = new StringBuilder();
+        UtilsService.getActionNamesByPersona(persona).forEach(actionName -> {
+            functionalities.append(actionName);
+            functionalities.append("\n");
+        });
+        return functionalities.toString();
     }
 }
