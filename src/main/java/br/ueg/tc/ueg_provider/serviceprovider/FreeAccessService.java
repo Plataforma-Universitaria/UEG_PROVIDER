@@ -74,7 +74,7 @@ public class FreeAccessService extends InstitutionService {
                  Secretaria do Campus Central:
                 • E-mail: secretaria.campuscentral@ueg.br
                 
-                 Para mais informações, acesse:\s""" + UEG_CONTATOS;
+                 Para mais informações, acesse: \s""" + UEG_CONTATOS;
     }
 
     @ServiceProviderMethod(activationPhrases = {
