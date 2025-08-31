@@ -144,7 +144,7 @@ public class StudentService extends InstitutionService {
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha nota em matemática",
             "média geral em programação", "qual minha nota em portugues",
-            "nota em infra", "nota em prog"},
+            "nota em infra", "nota em prog", "alg 1 notas", "prog notas", "mat média"},
     actionName = "Obter as notas de uma disciplina")
     public String getGradesByDiscipline(String discipline) {
         getPersonId();
@@ -174,6 +174,35 @@ public class StudentService extends InstitutionService {
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
+
+    @ServiceProviderMethod(activationPhrases = {"Qual minha nota",
+            "quais minhas notas", "notas",
+            "todas as notas", "toda as médias"},
+            actionName = "Obter as todas as notas")
+    public String getAllGrades() {
+        getPersonId();
+        HttpGet httpGet = new HttpGet(DADOS_DISCIPLINAS + acuId);
+        try {
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (responseOK(httpResponse)) {
+                String entityString = EntityUtils.toString(entity);
+                Formatter formatter = new Formatter();
+                if (entityString == null || entityString.isEmpty()) return null;
+                return formatter.formatDisciplineGrade(
+                        converterUEG.getGradesWithDetailedGradeFromJson(
+                                (JsonArray) JsonParser.parseString(entityString)));
+
+            } else {
+                throw new InstitutionServiceException("Ocorreu um problema na obtenção da nota. Tente novamente mais tarde.");
+            }
+
+        } catch (Exception error) {
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
+        }
+    }
+
 
     @ServiceProviderMethod(activationPhrases = {"Quais minhas notas do primeiro semestre",
             "notas do periodo 7", "3° periodo notas"},
