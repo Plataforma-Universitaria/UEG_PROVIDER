@@ -7,7 +7,7 @@ import br.ueg.tc.ueg_provider.services.UtilsService;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.UEG_CONTATOS;
 
-@ServiceProviderClass(personas = {"Convidado", "Aluno", "Professor"})
+@ServiceProviderClass(personas = {"Convidado"})
 public class FreeAccessService extends InstitutionService {
 
     public FreeAccessService() {
