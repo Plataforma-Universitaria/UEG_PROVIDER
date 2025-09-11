@@ -74,7 +74,7 @@ public abstract class InstitutionService implements IServiceProvider {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(json);
             JsonNode campo = rootNode.get(field);
-            return campo != null ? campo.asText() : null;
+            return campo != null ? campo.toString() : null;
         } catch (Exception e) {
             throw new RuntimeException("Erro ao extrair campo do JSON: " + field, e);
         }
