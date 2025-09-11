@@ -424,7 +424,7 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 ComplementaryActivityUEG complementaryActivity = converterUEG.getComplementaryHoursActivitiesFromJson(
-                        (JsonParser.parseString(entityString)));
+                        (JsonParser.parseString(extractFromJson(entityString, "AtividadeComplementar"))));
                 Formatter formatter = new Formatter();
                 return formatter.formatComplementaryActivities(complementaryActivity);
             } else
@@ -452,7 +452,7 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
                 List<ExtensionActivityUEG> extensionActivities = converterUEG.getExtensionActivityFromJson(
-                        (JsonArray) (JsonParser.parseString(entityString)));
+                        (JsonArray) JsonParser.parseString(extractFromJson(entityString, "Extensao")));
                 Formatter formatter = new Formatter();
                 return formatter.formatExtensionActivities(extensionActivities);
             } else

@@ -178,6 +178,10 @@ public class Formatter {
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("HH:mm");
         LocalDate dataPattern = LocalDate.now();
 
+        if(Objects.isNull(disciplineSchedules) || disciplineSchedules.isEmpty()) {
+            return "Não encontrei nenhuma aula";
+        }
+
         List<WeekDay> ordemDosDias = WeekDay.getWeekDaysSort();
         for (WeekDay dia : ordemDosDias) {
             String shortName = dia.getShortName();
