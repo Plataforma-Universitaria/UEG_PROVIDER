@@ -76,7 +76,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> authenticateUser(String username, String password, List<String> personas) throws UserNotAuthenticatedException, InstitutionCommunicationException {
-        if (username == null || password == null) {
+        if (username == null && password == null) {
             return new ArrayList<>(List.of(new KeyValue("Convidado", "noAccessData")));
         }
         HttpPost httpPost = new HttpPost(VALIDA_LOGIN);
@@ -90,7 +90,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
             HttpEntity entity = httpResponse.getEntity();
             String hmtlResponse = EntityUtils.toString(entity);
             if(responseLoginOK(hmtlResponse)) return cookiesToKeyValue();
-            return null;
+            throw new UserNotAuthenticatedException();
         } catch (Throwable error) {
             throw new RuntimeException(error);
         }
