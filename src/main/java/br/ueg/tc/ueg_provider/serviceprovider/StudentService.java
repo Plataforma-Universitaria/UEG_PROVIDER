@@ -496,6 +496,7 @@ public class StudentService extends InstitutionService {
             "Me mande meu histórico",
             "enviar histórico",
             "histórico academico",
+            "histórico pro email",
             "histórico"
     },
             actionName = "Receber o histórico acadêmico por email")
