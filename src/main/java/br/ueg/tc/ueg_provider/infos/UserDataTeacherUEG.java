@@ -10,15 +10,20 @@ import java.util.List;
 
 @Getter
 @Setter
-public class UserDataUEG implements IUserData {
+public class UserDataTeacherUEG implements IUserData {
 
-    @SerializedName("pessoa_id")
+    @SerializedName("id_pessoa")
     private String personId;
 
     @SerializedName("nome")
     private String firstName;
 
-    @SerializedName("email_discente")
+    @SerializedName("id_vinculo")
+    private String boundId;
+
+    @SerializedName("ref_departamento")
+    private String depId;
+
     private String email;
 
     @SerializedName("personas")

@@ -3,7 +3,9 @@ package br.ueg.tc.ueg_provider.formatter;
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
 import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
+import br.ueg.tc.ueg_provider.infos.DisciplineTeacherUEG;
 import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
+import br.ueg.tc.ueg_provider.infos.TcDetailUEG;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -272,6 +274,35 @@ public class Formatter {
                                 .append(detailedGrade.getGradeValue()).append("\n");
                     });
             stringBuilder.append("Média final: ").append(disciplineGrade.getFinalMedia()).append("\n\n");
+        });
+        return stringBuilder.toString();
+    }
+
+    public String formatDisciplineTeacher(List<DisciplineTeacherUEG> disciplineTeacherUEG) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (disciplineTeacherUEG.isEmpty())
+            return "Não encontrei nenhuma matéria!";
+        stringBuilder.append("Encontrei as seguintes informações:\n");
+        disciplineTeacherUEG.forEach(disciplineGrade -> {
+            if(!(disciplineGrade.getDisciplineName().contains("TRABALHO DE CURSO II") && stringBuilder.toString().contains("TRABALHO DE CURSO II")) ||
+            !(disciplineGrade.getDisciplineName().contains("TRABALHO DE CURSO I") && stringBuilder.toString().contains("TRABALHO DE CURSO I")))
+                stringBuilder
+                        .append(disciplineGrade.getDisciplineName()).append("\n");
+            if (!disciplineGrade.getStatus().isEmpty())
+                stringBuilder.append(disciplineGrade.getStatus()).append("\n");
+        });
+        return stringBuilder.toString().replace("{", "").replace("}", "").replace("\"", "");
+    }
+
+    public String formatTCDetails(List<TcDetailUEG> tCsFromJson) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if(tCsFromJson.isEmpty())
+            return "Não encontrei esta informação";
+        tCsFromJson.forEach(tcDetailUEG -> {
+            stringBuilder.append("-----------------------------\nData: ").append(tcDetailUEG.getFollowupDate()).append("\n")
+                    .append("Horas Atribuídas: ").append(tcDetailUEG.getHours()).append("\n")
+                    .append("Descrição: ").append(tcDetailUEG.getDetails()).append("\n");
+
         });
         return stringBuilder.toString();
     }
