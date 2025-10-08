@@ -41,4 +41,8 @@ public class DisciplineTeacherUEG implements IDiscipline {
         StringBuilder tc = new StringBuilder();
         return tcuId.equals("0") ? "" : tc.append("Título: ").append(tcTitle).append("\nAluno: ").append(tcStudentName).toString();
     }
+
+    public String getTcStudentName() {
+        return tcStudentName.replace("{", "").replace("}", "").replace("\"", "");
+    }
 }

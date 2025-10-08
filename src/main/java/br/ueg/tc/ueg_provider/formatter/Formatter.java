@@ -2,10 +2,7 @@ package br.ueg.tc.ueg_provider.formatter;
 
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
 import br.ueg.tc.pipa_integrator.interfaces.providers.info.*;
-import br.ueg.tc.ueg_provider.infos.ComplementaryActivityUEG;
-import br.ueg.tc.ueg_provider.infos.DisciplineTeacherUEG;
-import br.ueg.tc.ueg_provider.infos.ExtensionActivityUEG;
-import br.ueg.tc.ueg_provider.infos.TcDetailUEG;
+import br.ueg.tc.ueg_provider.infos.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -306,4 +304,22 @@ public class Formatter {
         });
         return stringBuilder.toString();
     }
+
+    public String normalizeDate(String dateStr) {
+        if (dateStr == null || dateStr.isBlank()) {
+            return null;
+        }
+
+        try {
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            LocalDate date = LocalDate.parse(dateStr, inputFormatter);
+            return date.format(outputFormatter);
+        } catch (DateTimeParseException e) {
+            System.err.println("Data inválida: " + dateStr);
+            return null;
+        }
+    }
+
 }

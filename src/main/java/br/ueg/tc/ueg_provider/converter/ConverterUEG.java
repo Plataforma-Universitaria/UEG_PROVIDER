@@ -275,4 +275,19 @@ public class ConverterUEG implements IConverterInstitution {
 
         return tcDetailUEGList;
     }
+
+    public List<CourseUEG> getCoursesFromJson(JsonArray jsonArray) {
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<CourseUEG> courseUEGList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            CourseUEG tcDetail = gson.fromJson(jsonElement, CourseUEG.class);
+            courseUEGList.add(tcDetail);
+        }
+
+        return courseUEGList;
+
+    }
 }
