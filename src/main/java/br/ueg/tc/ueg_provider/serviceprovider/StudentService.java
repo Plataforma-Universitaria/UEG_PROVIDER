@@ -68,12 +68,6 @@ public class StudentService extends InstitutionService {
         super(user);
     }
 
-
-    private boolean responseOK(CloseableHttpResponse httpResponse) {
-        return httpResponse.getCode() == 200;
-    }
-
-
     public void getPersonId() {
         acuId = getUserData().getPersonId();
     }
@@ -82,37 +76,6 @@ public class StudentService extends InstitutionService {
         jwt = getJwt().jwt();
     }
 
-    public Token getJwt() {
-        HttpGet httpGet = new HttpGet(GET_JWT_TOKEN);
-        try {
-            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
-            HttpEntity entity = httpResponse.getEntity();
-            if (responseOK(httpResponse)) {
-                return converterUEG.getTokenFromJson(JsonParser.
-                        parseString(EntityUtils.toString(entity)));
-            }
-            throw new UserNotFoundException();
-        } catch (Throwable error) {
-            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
-                    " tente novamente mais tarde");
-        }
-    }
-
-    public IUserData getUserData() throws IntentNotSupportedException, InstitutionCommunicationException {
-        HttpGet httpGet = new HttpGet(PERFIL);
-        try {
-            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
-            HttpEntity entity = httpResponse.getEntity();
-            if (responseOK(httpResponse)) {
-                return converterUEG.getUserDataFromJson(JsonParser.
-                        parseString(EntityUtils.toString(entity)));
-            }
-            throw new UserNotFoundException();
-        } catch (Throwable error) {
-            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
-                    " tente novamente mais tarde");
-        }
-    }
 
     @ServiceProviderMethod(activationPhrases = {"Qual minha média geral",
             "média geral", "qual minha nota geral", "média", "qual a nota geral?"},

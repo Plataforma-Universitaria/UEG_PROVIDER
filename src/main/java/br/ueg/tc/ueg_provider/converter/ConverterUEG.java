@@ -223,6 +223,20 @@ public class ConverterUEG implements IConverterInstitution {
         return disciplineSimpleDataList;
     }
 
+    public List<DisciplineTeacherUEG> getDisciplinesTeacherFromJson(JsonArray jsonArray) {
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<DisciplineTeacherUEG> disciplineSimpleDataList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            DisciplineTeacherUEG disciplineSimpleDataUEG = gson.fromJson(jsonElement, DisciplineTeacherUEG.class);
+            disciplineSimpleDataList.add(disciplineSimpleDataUEG);
+        }
+
+        return disciplineSimpleDataList;
+    }
+
     public KeyUrl getKeyUrlFromJson(JsonElement jsonElement){
         return gson.fromJson(jsonElement, KeyUrl.class);
     }
@@ -239,5 +253,41 @@ public class ConverterUEG implements IConverterInstitution {
             return  null;
         ComplementaryActivityUEG complementaryActivity = gson.fromJson(jsonElement, ComplementaryActivityUEG.class);
         return complementaryActivity;
+    }
+
+    public UserDataTeacherUEG getUserDataTeacherFromJson(JsonElement jsonElement) {
+        return gson.fromJson(jsonElement, UserDataTeacherUEG.class);
+    }
+    public TcDetailUEG getTCFromJson(JsonElement jsonElement) {
+        return gson.fromJson(jsonElement, TcDetailUEG.class);
+    }
+
+    public List<TcDetailUEG> getOrientationsFromJson(JsonArray jsonArray) {
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<TcDetailUEG> tcDetailUEGList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            TcDetailUEG tcDetail = gson.fromJson(jsonElement, TcDetailUEG.class);
+            tcDetailUEGList.add(tcDetail);
+        }
+
+        return tcDetailUEGList;
+    }
+
+    public List<CourseUEG> getCoursesFromJson(JsonArray jsonArray) {
+        if (isNullOrEmpty(jsonArray))
+            return  null;
+
+        List<CourseUEG> courseUEGList = new ArrayList<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            CourseUEG tcDetail = gson.fromJson(jsonElement, CourseUEG.class);
+            courseUEGList.add(tcDetail);
+        }
+
+        return courseUEGList;
+
     }
 }

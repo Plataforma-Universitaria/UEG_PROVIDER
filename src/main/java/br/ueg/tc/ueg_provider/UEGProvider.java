@@ -68,7 +68,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
         this.httpCookieStore = new BasicCookieStore();
         for (KeyValue accessData : keyValueList){
             BasicClientCookie basicClientCookie = new BasicClientCookie(accessData.getKey(), accessData.getValue());
-            basicClientCookie.setDomain("www.app.ueg.br");
+            basicClientCookie.setDomain("https://www.sistema.beta.ueg.br");
             basicClientCookie.setPath("/");
             this.httpCookieStore.addCookie(basicClientCookie);
         }
@@ -158,7 +158,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
             }
             throw new UserNotFoundException();
         } catch (Throwable error) {
-            throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
+            throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
     }
@@ -171,7 +171,8 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     public List<String> getPersonas() {
         return List.of(
                 "Aluno",
-                "Convidado"
+                "Convidado",
+                "Professor"
         );
     }
 
@@ -187,6 +188,10 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
                         "Senha",
                         "Entre com sua conta do ADMS",
                         "Aluno"),
+                new LoginData("CPF",
+                        "Senha",
+                        "Entre com sua conta do ADMS",
+                        "Professor"),
                 new LoginData(null,
                         null,
                         "Entre como convidado",

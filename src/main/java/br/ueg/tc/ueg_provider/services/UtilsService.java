@@ -6,6 +6,8 @@ import br.ueg.tc.ueg_provider.serviceprovider.InstitutionService;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,12 @@ public class UtilsService {
                 })
                 .map(Class::getName)
                 .collect(Collectors.toList());
+    }
+
+    public static String getCurrentFormattedDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate currentDate = LocalDate.now();
+        return currentDate.format(formatter);
     }
 
     public static List<String> getActionNamesByPersona(String persona) {
