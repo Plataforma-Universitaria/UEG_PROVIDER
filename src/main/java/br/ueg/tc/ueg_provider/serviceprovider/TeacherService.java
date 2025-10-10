@@ -180,13 +180,17 @@ public class TeacherService extends InstitutionService {
                     "hours: número inteiro (apenas um valor) representando a carga horária. Exemplo: '1', '2'. Caso não informado, assume '1'.",
                     "followupDate: data exata da orientação no formato 'dd/mm/aaaa'. Exemplo: '06/03/2002'."})
     public String addOrientation(String studentName, String courseName, String description, String hours, String followupDate) {
+        Formatter formatter = new Formatter();
         String idCourse = isValidCourse(courseName);
         String period = getPeriod();
         DisciplineTeacherUEG tc = findStudentTC(studentName, period);
 
         followupDate = followupDate.isBlank() ? UtilsService.getCurrentFormattedDate() : followupDate;
         hours = hours.isBlank() ? "1" : hours;
-
+        TcDetailUEG tcOrientation = findOrientationByTcuAndDate(tc.getTcuId(), formatter.normalizeDate(followupDate));
+        if(Objects.nonNull(tcOrientation)) {
+            return  "Já existe orientação nesta data.";
+        }
         TcDTO dto = new TcDTO(tc.getTcuId(), followupDate, hours, description, "", "");
 
         List<NameValuePair> params = List.of(
@@ -197,8 +201,7 @@ public class TeacherService extends InstitutionService {
         );
 
         executePost(TC_ADICIONAR_ACOMPANHAMENTO, new ArrayList<>(params));
-        Formatter formatter = new Formatter();
-        TcDetailUEG tcOrientation = findOrientationByTcuAndDate(tc.getTcuId(), formatter.normalizeDate(followupDate));
+        tcOrientation = findOrientationByTcuAndDate(tc.getTcuId(), formatter.normalizeDate(followupDate));
         if(Objects.nonNull(tcOrientation)) {
             return "Orientação de trabalho adicionada com sucesso!\n" +
                     "Aluno: " + tcOrientation.getStudent() +
