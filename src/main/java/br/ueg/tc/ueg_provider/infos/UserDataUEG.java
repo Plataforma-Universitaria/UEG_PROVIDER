@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 public class UserDataUEG implements IUserData {
 
-    @SerializedName("pessoa_id")
+    @SerializedName("acu_id")
     private String personId;
 
     @SerializedName("nome")
