@@ -14,7 +14,7 @@ public class CourseUEG {
     @SerializedName("curso")
     private String courseName;
 
-    @SerializedName("id_modalidade")
+    @SerializedName("modalidade")
     private String modality;
 
     @SerializedName("dep_nome")

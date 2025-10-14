@@ -162,6 +162,7 @@ public class TeacherService extends InstitutionService {
             "Registrar orientação de TCC para o aluno (student name) ex:Felipe, com carga de (hours)ex:2 e descrição: (description) ex:Estruturação do sumário no dia (followupDate com formato dd/mm/aaaa) ex:15/10/2025",
             "Adicionar nova orientação",
             "Incluir orientação",
+            "Registrar orientação de TC",
             "quero adicionar orientação",
             "Registrar orientação de TCC: aluno (student name) ex:Camila, descrição (description) ex:Análise de dados iniciais, duração (hours) ex:3 horas no dia (followupDate com formato dd/mm/aaaa) ex:22/10/2025",
             "Adicionar orientação: assunto (description) ex:Modelagem de dados, com (hours) ex:2 horas, para o aluno (student name) ex:Rafael (quando não tem a data o valor é a data de hoje)",
