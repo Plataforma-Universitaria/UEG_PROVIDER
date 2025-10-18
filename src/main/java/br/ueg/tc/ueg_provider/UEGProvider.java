@@ -76,7 +76,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> authenticateUser(String username, String password, List<String> personas) throws UserNotAuthenticatedException, InstitutionCommunicationException {
-        if (username == null && password == null) {
+        if (username.isBlank() && password.isBlank()) {
             return new ArrayList<>(List.of(new KeyValue("Convidado", "noAccessData")));
         }
         HttpPost httpPost = new HttpPost(VALIDA_LOGIN);
