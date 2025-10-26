@@ -10,7 +10,6 @@ import br.ueg.tc.pipa_integrator.interfaces.providers.service.IServiceProvider;
 import br.ueg.tc.ueg_provider.UEGProvider;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import br.ueg.tc.ueg_provider.dto.Token;
-import br.ueg.tc.ueg_provider.services.EmailServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
