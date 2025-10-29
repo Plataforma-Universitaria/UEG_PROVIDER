@@ -66,7 +66,7 @@ public abstract class InstitutionService implements IServiceProvider {
         this.httpCookieStore = new BasicCookieStore();
         for (KeyValue accessData : keyValueList) {
             BasicClientCookie basicClientCookie = new BasicClientCookie(accessData.getKey(), accessData.getValue());
-            basicClientCookie.setDomain("www.sistema.beta.ueg.br");
+            basicClientCookie.setDomain("www.app.ueg.br");
             basicClientCookie.setPath("/");
             this.httpCookieStore.addCookie(basicClientCookie);
         }
