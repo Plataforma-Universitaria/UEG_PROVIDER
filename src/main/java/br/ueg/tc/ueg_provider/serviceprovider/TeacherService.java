@@ -351,10 +351,10 @@ public class TeacherService extends InstitutionService {
         if (orientations == null || orientations.isEmpty()) {
             return "Não encontrei registros de orientação para o aluno " + student + ".";
         }
-        builder.append("Aluno(a): ")
+        builder.append("Orientações do aluno(a): ")
                 .append(student)
                 .append("\n")
-                .append("Orientações:\n")
+                .append("-------------------------\n")
                 .append(new Formatter().formatTCDetails(orientations));
 
         return builder.toString();
