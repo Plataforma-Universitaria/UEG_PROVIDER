@@ -347,10 +347,17 @@ public class TeacherService extends InstitutionService {
     )
     public String listOrientationsByStudent(String student) {
         List<TcDetailUEG> orientations = findOrientationsByStudent(student);
+        StringBuilder builder = new StringBuilder();
         if (orientations == null || orientations.isEmpty()) {
             return "Não encontrei registros de orientação para o aluno " + student + ".";
         }
-        return "Aluno(a): " + student + "\n" + new Formatter().formatTCDetails(orientations);
+        builder.append("Aluno(a): ")
+                .append(student)
+                .append("\n")
+                .append("Orientações:\n")
+                .append(new Formatter().formatTCDetails(orientations));
+
+        return builder.toString();
     }
 
     @ServiceProviderMethod(
