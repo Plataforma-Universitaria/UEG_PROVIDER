@@ -56,6 +56,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     public UEGProvider(IUser user) {
+        this.httpCookieStore = new BasicCookieStore();
         setUserAccessData(user.getKeyValueList());
         this.localContext = HttpClientContext.create();
         this.httpClient =
@@ -65,10 +66,14 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     private void setUserAccessData(List<KeyValue> keyValueList) {
-        this.httpCookieStore = new BasicCookieStore();
+        if (this.httpCookieStore != null) {
+            this.httpCookieStore.clear();
+        } else {
+            this.httpCookieStore = new BasicCookieStore();
+        }
         for (KeyValue accessData : keyValueList){
             BasicClientCookie basicClientCookie = new BasicClientCookie(accessData.getKey(), accessData.getValue());
-            basicClientCookie.setDomain("https://www.sistema.beta.ueg.br");
+            basicClientCookie.setDomain("www.app.ueg.br");
             basicClientCookie.setPath("/");
             this.httpCookieStore.addCookie(basicClientCookie);
         }
@@ -114,6 +119,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     @Override
     public List<KeyValue> refreshUserAccessData(List<KeyValue> accessData, List<String> personas) {
+        setUserAccessData(accessData);
         personas.forEach(this::enterPortal);
         return cookiesToKeyValue();
     }
