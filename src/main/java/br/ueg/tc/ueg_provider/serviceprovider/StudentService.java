@@ -292,7 +292,7 @@ public class StudentService extends InstitutionService {
                 if (entityString == null || entityString.isEmpty()) return null;
                 discipline = getDisciplineNameResponse(discipline, entityString);
                 if (Objects.equals(discipline, "NENHUMA")) {
-                    return "Você não tem notas nessa matéria";
+                    return "Você não tem faltas nessa matéria";
                 }
                 Formatter formatter = new Formatter();
                 return formatter.formatAbsence(formatter.absencesByDisciplineName(discipline,
