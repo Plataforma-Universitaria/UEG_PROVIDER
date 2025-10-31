@@ -298,10 +298,10 @@ public class Formatter {
             return "Não encontrei esta informação";
         tCsFromJson.forEach(tcDetailUEG -> {
             stringBuilder
-                    .append("\nData: ")
+                    .append("\n*Data:* ")
                     .append(tcDetailUEG.getFollowupDate() + "\n")
-                    .append("Horas Atribuídas: ").append(tcDetailUEG.getHours() + "\n")
-                    .append("Descrição: ").append(tcDetailUEG.getDetails() + "\n\n");
+                    .append("*Horas Atribuídas:* ").append(tcDetailUEG.getHours() + "\n")
+                    .append("*Descrição:* ").append(tcDetailUEG.getDetails() + "\n\n");
         });
         return stringBuilder.toString();
     }
