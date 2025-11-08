@@ -126,7 +126,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     @Override
-    public List<String> canAccessDiary(){
+    public List<String> canAccessTask(){
          return List.of(
                 "Aluno",
                 "Professor"
