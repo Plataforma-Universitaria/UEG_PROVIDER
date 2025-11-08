@@ -76,29 +76,4 @@ public class FreeAccessService extends InstitutionService {
                 
                  Para mais informações, acesse: \s""" + UEG_CONTATOS;
     }
-
-    @ServiceProviderMethod(activationPhrases = {
-            "Ajuda",
-            "Funcionalidades",
-            "O que pode fazer",
-            "Ações disponíveis"
-    }, actionName = "Consultar serviços disponíveis")
-    public String getFunctionalities(){
-        StringBuilder functionalities = new StringBuilder();
-        functionalities.append("Você pode:\n");
-        getUserPersonas().forEach(persona -> {
-            functionalities.append(getFunctionalitiesByPersona(persona));
-                }
-        );
-        return functionalities.toString();
-    }
-
-    private String getFunctionalitiesByPersona(String persona) {
-        StringBuilder functionalities = new StringBuilder();
-        UtilsService.getActionNamesByPersona(persona).forEach(actionName -> {
-            functionalities.append(actionName);
-            functionalities.append("\n");
-        });
-        return functionalities.toString();
-    }
 }
