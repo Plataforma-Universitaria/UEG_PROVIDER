@@ -1,6 +1,7 @@
 package br.ueg.tc.ueg_provider;
 
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
+import br.ueg.tc.pipa_integrator.enums.Persona;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionCommunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotAuthenticatedException;
@@ -122,6 +123,14 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
         setUserAccessData(accessData);
         personas.forEach(this::enterPortal);
         return cookiesToKeyValue();
+    }
+
+    @Override
+    public List<String> canAccessDiary(){
+         return List.of(
+                "Aluno",
+                "Professor"
+        );
     }
 
     private void enterPortal(String persona) {
