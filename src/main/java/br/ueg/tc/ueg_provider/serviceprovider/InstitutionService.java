@@ -1,5 +1,8 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
+import lombok.extern.slf4j.Slf4j;
+
+import br.ueg.tc.pipa_integrator.exceptions.BusinessException;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionCommunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotFoundException;
@@ -31,6 +34,7 @@ import java.util.List;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
 
+@Slf4j
 public abstract class InstitutionService implements IServiceProvider {
 
     protected CookieStore httpCookieStore;
@@ -93,7 +97,10 @@ public abstract class InstitutionService implements IServiceProvider {
                         parseString(EntityUtils.toString(entity)));
             }
             throw new UserNotFoundException();
+        } catch (BusinessException e) {
+            throw e;
         } catch (Throwable error) {
+            log.error("Erro ao obter JWT do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -124,7 +131,10 @@ public abstract class InstitutionService implements IServiceProvider {
                 }
             }
             throw new UserNotFoundException();
+        } catch (BusinessException e) {
+            throw e;
         } catch (Throwable error) {
+            log.error("Erro ao obter dados do usuário do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }

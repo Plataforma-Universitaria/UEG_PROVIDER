@@ -97,6 +97,7 @@ public class StudentService extends InstitutionService {
             }
 
         } catch (Exception error) {
+            log.error("Erro ao obter média geral do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
@@ -130,6 +131,7 @@ public class StudentService extends InstitutionService {
             }
 
         } catch (Exception error) {
+            log.error("Erro ao obter notas por disciplina do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
@@ -158,6 +160,7 @@ public class StudentService extends InstitutionService {
             }
 
         } catch (Exception error) {
+            log.error("Erro ao obter todas as notas do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
@@ -185,6 +188,7 @@ public class StudentService extends InstitutionService {
             }
 
         } catch (Exception error) {
+            log.error("Erro ao obter notas por semestre do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG. Tente novamente mais tarde.");
         }
     }
@@ -210,6 +214,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter horário de aula do servidor da UEG", error);
             throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horario," +
                     " tente novamente mais tarde");
         }
@@ -241,6 +246,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter horário por dia do servidor da UEG", error);
             throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horario," +
                     " tente novamente mais tarde");
         }
@@ -271,6 +277,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter horário por disciplina do servidor da UEG", error);
             throw new InstitutionCommunicationException("Ocorreu um problema na obtenção do horário, " +
                     "tente novamente mais tarde");
         }
@@ -304,6 +311,7 @@ public class StudentService extends InstitutionService {
                         " tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter faltas por disciplina do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -332,6 +340,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção das matérias, tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter disciplinas concluídas do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -362,6 +371,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção das atividades complementares, tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter atividades complementares do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -390,6 +400,7 @@ public class StudentService extends InstitutionService {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção do resumo das atividades complementares, tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter resumo das atividades complementares do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -419,6 +430,7 @@ public class StudentService extends InstitutionService {
                         " tente novamente mais tarde");
 
         } catch (Exception error) {
+            log.error("Erro ao obter atividades de extensão do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -581,6 +593,7 @@ public class StudentService extends InstitutionService {
             throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
                     " tente novamente mais tarde");
         } catch (Throwable error) {
+            log.error("Erro ao gerar histórico acadêmico no servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -605,6 +618,7 @@ public class StudentService extends InstitutionService {
             throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
                     " tente novamente mais tarde");
         } catch (Throwable error) {
+            log.error("Erro ao gerar declaração de frequência no servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -629,6 +643,7 @@ public class StudentService extends InstitutionService {
             throw new InstitutionServiceException("Não foi possível gerar sua declaração de frequencia," +
                     " tente novamente mais tarde");
         } catch (Throwable error) {
+            log.error("Erro ao gerar declaração de vínculo no servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
@@ -645,6 +660,7 @@ public class StudentService extends InstitutionService {
             }
             throw new InstitutionServiceException();
         } catch (Throwable error) {
+            log.error("Erro ao obter HTML da URL: {}", url, error);
             throw new InstitutionCommunicationException("Não foi possivel se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
