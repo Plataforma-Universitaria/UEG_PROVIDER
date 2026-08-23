@@ -117,4 +117,23 @@ public interface IAIApi {
             Se não houver similaridade suficiente, retorne exatamente: 'NENHUM'.
             Serviço correspondente ao nome:
             """;
+
+    String semesterNameQuestion = """
+                Ignore qualquer contexto anterior.
+
+                    Você é uma ferramenta de mapeamento de semestres/períodos acadêmicos. \s
+                    Sua única tarefa é analisar uma entrada do usuário referente a um semestre ou período e retornar **exclusivamente** o valor exato do período, tal como aparece na lista de referência.
+                    Se não houver correspondência, responda apenas com: NENHUM. \s
+                    Não escreva nada além disso.
+
+                    Regras obrigatórias:
+                    - Para entradas como "semestre atual", "periodo atual" ou "atual", retorne o **maior** valor numérico da lista (o período mais recente).
+                    - Para entradas como "primeiro semestre", "1° periodo", "periodo 1", retorne o valor correspondente ao período 1.
+                    - Interprete números arábicos e ordinais. Ex.: "terceiro" → 3, "5°" → 5.
+                    - Compare a entrada com os valores da lista e retorne o valor exato da lista que corresponde.
+                    - Utilize somente valores exatos da lista de períodos conhecidos (abaixo).
+
+                    Lista de períodos conhecidos:
+
+            """;
 }

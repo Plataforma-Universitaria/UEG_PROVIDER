@@ -13,6 +13,7 @@ import br.ueg.tc.pipa_integrator.interfaces.platform.IUser;
 import br.ueg.tc.pipa_integrator.interfaces.providers.EmailDetails;
 import br.ueg.tc.pipa_integrator.interfaces.providers.IEmailService;
 import br.ueg.tc.pipa_integrator.interfaces.providers.parameters.ParameterValue;
+import br.ueg.tc.pipa_integrator.interfaces.providers.info.IDisciplineGrade;
 import br.ueg.tc.ueg_provider.ai.AIApi;
 import br.ueg.tc.ueg_provider.converter.ConverterUEG;
 import br.ueg.tc.ueg_provider.dto.KeyUrl;
@@ -37,6 +38,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static br.ueg.tc.ueg_provider.UEGEndpoint.*;
 import static br.ueg.tc.ueg_provider.enums.DocEnum.ACADEMIC_RECORD;
@@ -180,8 +182,17 @@ public class StudentService extends InstitutionService {
                 String entityString = EntityUtils.toString(entity);
                 Formatter formatter = new Formatter();
                 if (entityString == null || entityString.isEmpty()) return null;
-                return formatter.formatDisciplineGrade(formatter.disciplineGradeBySemester(semester,
-                        converterUEG.getGradesWithDetailedGradeFromJson((JsonArray) JsonParser.parseString(entityString))));
+
+                List<IDisciplineGrade> allGrades = converterUEG.getGradesWithDetailedGradeFromJson(
+                        (JsonArray) JsonParser.parseString(entityString));
+
+                semester = getSemesterResponse(semester, allGrades);
+                if (Objects.equals(semester, "NENHUM")) {
+                    return "Não foi possível identificar o semestre solicitado.";
+                }
+
+                return formatter.formatDisciplineGrade(
+                        formatter.disciplineGradeBySemester(semester, allGrades));
 
             } else {
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção das notas. Tente novamente mais tarde.");
@@ -526,6 +537,22 @@ public class StudentService extends InstitutionService {
 
         discipline = aiService.sendPrompt(disciplineNameResponse);
         return discipline;
+    }
+
+    private String getSemesterResponse(String semester, List<IDisciplineGrade> grades) {
+        String knownSemesters = grades.stream()
+                .map(IDisciplineGrade::getSemester)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.joining(", "));
+
+        String semesterPrompt =
+                AIApi.semesterNameQuestion +
+                knownSemesters +
+                "\n Entrada: " +
+                semester;
+
+        return aiService.sendPrompt(semesterPrompt);
     }
 
     private String getWeekByValue(String weekDay) {
