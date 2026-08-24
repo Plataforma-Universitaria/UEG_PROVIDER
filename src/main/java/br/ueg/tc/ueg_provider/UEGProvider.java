@@ -103,7 +103,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     }
 
     private boolean responseLoginOK(String hmtlResponse) {
-        return hmtlResponse.contains("Selecione um dos sistemas");
+        return hmtlResponse.contains("Selecione um dos sistemas") || hmtlResponse.contains("/auth/usuarios/logout/");
     }
 
     private List<KeyValue> cookiesToKeyValue() {
