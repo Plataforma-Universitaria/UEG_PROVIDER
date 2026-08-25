@@ -16,6 +16,7 @@ import br.ueg.tc.ueg_provider.infos.LoginData;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
@@ -38,6 +39,7 @@ import java.util.List;
 
 @Component
 @Getter
+@Slf4j
 public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
 
     private CookieStore httpCookieStore;
@@ -164,15 +166,27 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
     @Override
     public IUserData getUserData() throws IntentNotSupportedException, InstitutionCommunicationException {
         HttpGet httpGet = new HttpGet(PERFIL);
+        Integer statusCode = null;
+        String contentType = null;
         try {
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet, localContext);
+            statusCode = httpResponse.getCode();
             HttpEntity entity = httpResponse.getEntity();
+            contentType = entity != null ? entity.getContentType() : null;
             if (responseOK(httpResponse)) {
                 return converterUEG.getUserDataFromJson(JsonParser.
                         parseString(EntityUtils.toString(entity)));
             }
             throw new UserNotFoundException();
         } catch (Throwable error) {
+            log.error(
+                    "Erro original ao consultar o perfil da UEG. statusHttp={}, contentType={}, tipo={}, mensagem={}",
+                    statusCode != null ? statusCode : "indisponivel",
+                    contentType != null ? contentType : "indisponivel",
+                    error.getClass().getName(),
+                    error.getMessage(),
+                    error
+            );
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
                     " tente novamente mais tarde");
         }
