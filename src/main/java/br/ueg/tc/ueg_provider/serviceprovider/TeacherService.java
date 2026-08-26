@@ -88,7 +88,7 @@ public class TeacherService extends InstitutionService {
                 throw new UserNotFoundException();
             }
         } catch (Exception e) {
-            throw new InstitutionCommunicationException("Falha ao obter dados do professor na UEG.");
+            throw new InstitutionCommunicationException("Falha ao obter dados do professor na UEG.", e);
         }
     }
 
@@ -102,7 +102,7 @@ public class TeacherService extends InstitutionService {
             }
             throw new InstitutionServiceException("Erro ao obter informações da UEG.");
         } catch (Exception e) {
-            throw new InstitutionCommunicationException("Falha de comunicação com a UEG.");
+            throw new InstitutionCommunicationException("Falha de comunicação com a UEG.", e);
         }
     }
 
@@ -122,7 +122,7 @@ public class TeacherService extends InstitutionService {
             }
             throw new InstitutionServiceException("Erro ao enviar dados: " + responseBody);
         } catch (Exception e) {
-            throw new InstitutionCommunicationException("Erro de comunicação com a UEG.");
+            throw new InstitutionCommunicationException("Erro de comunicação com a UEG.", e);
         }
     }
 

@@ -102,7 +102,7 @@ public abstract class InstitutionService implements IServiceProvider {
         } catch (Throwable error) {
             log.error("Erro ao obter JWT do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
-                    " tente novamente mais tarde");
+                    " tente novamente mais tarde", error);
         }
     }
 
@@ -136,7 +136,7 @@ public abstract class InstitutionService implements IServiceProvider {
         } catch (Throwable error) {
             log.error("Erro ao obter dados do usuário do servidor da UEG", error);
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
-                    " tente novamente mais tarde");
+                    " tente novamente mais tarde", error);
         }
     }
 

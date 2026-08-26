@@ -2,6 +2,7 @@ package br.ueg.tc.ueg_provider;
 
 import br.ueg.tc.pipa_integrator.converter.IConverterInstitution;
 import br.ueg.tc.pipa_integrator.enums.Persona;
+import br.ueg.tc.pipa_integrator.exceptions.BusinessException;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionCommunicationException;
 import br.ueg.tc.pipa_integrator.exceptions.intent.IntentNotSupportedException;
 import br.ueg.tc.pipa_integrator.exceptions.user.UserNotAuthenticatedException;
@@ -99,8 +100,13 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
             String hmtlResponse = EntityUtils.toString(entity);
             if(responseLoginOK(hmtlResponse)) return cookiesToKeyValue();
             throw new UserNotAuthenticatedException();
+        } catch (BusinessException error) {
+            throw error;
         } catch (Throwable error) {
-            throw new RuntimeException(error);
+            throw new InstitutionCommunicationException(
+                    "Não foi possível autenticar no servidor da UEG. Tente novamente mais tarde.",
+                    error
+            );
         }
     }
 
@@ -152,8 +158,13 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
             if (responseOK(httpResponse)) {
                 getPersonId();
             }
+        } catch (BusinessException error) {
+            throw error;
         } catch (Throwable error) {
-            throw new RuntimeException(error);
+            throw new InstitutionCommunicationException(
+                    "Não foi possível acessar o portal da UEG. Tente novamente mais tarde.",
+                    error
+            );
         }
     }
 
@@ -178,6 +189,8 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
                         parseString(EntityUtils.toString(entity)));
             }
             throw new UserNotFoundException();
+        } catch (BusinessException error) {
+            throw error;
         } catch (Throwable error) {
             log.error(
                     "Erro original ao consultar o perfil da UEG. statusHttp={}, contentType={}, tipo={}, mensagem={}",
@@ -188,7 +201,7 @@ public class UEGProvider implements IBaseInstitutionProvider, UEGEndpoint {
                     error
             );
             throw new InstitutionCommunicationException("Não foi possível se comunicar com o servidor da UEG," +
-                    " tente novamente mais tarde");
+                    " tente novamente mais tarde", error);
         }
     }
 
