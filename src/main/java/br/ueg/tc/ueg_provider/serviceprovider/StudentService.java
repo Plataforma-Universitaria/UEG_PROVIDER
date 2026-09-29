@@ -469,6 +469,8 @@ public class StudentService extends InstitutionService {
 
             return sendEmail(emailDetails);
 
+        } catch (InstitutionCommunicationException e) {
+            throw e;
         } catch (Exception e) {
             return "Ocorreu um erro ao enviar sua declaração de frequência: " + e.getMessage();
         }
@@ -497,6 +499,8 @@ public class StudentService extends InstitutionService {
 
             return sendEmail(emailDetails);
 
+        } catch (InstitutionCommunicationException e) {
+            throw e;
         } catch (Exception e) {
             return "Ocorreu um erro ao enviar Histórico academico: " + e.getMessage();
         }
@@ -523,6 +527,8 @@ public class StudentService extends InstitutionService {
 
             return sendEmail(emailDetails);
 
+        } catch (InstitutionCommunicationException e) {
+            throw e;
         } catch (Exception e) {
             return "Ocorreu um erro ao enviar sua declaração de vínculo: " + e.getMessage();
         }
@@ -716,9 +722,12 @@ public class StudentService extends InstitutionService {
 
     private String sendEmail(EmailDetails emailDetails) {
         if (emailService.sendEmailWithFileAttachment(emailDetails)) {
-            return "O documento foi enviado para o seu e-mail acadêmico.";
+            return "O servidor de e-mail aceitou o envio do documento para seu e-mail acadêmico. " +
+                    "Isso não garante que a mensagem chegue à caixa de entrada; se não a encontrar, confira a pasta Spam.";
         }
-        return "Houve um erro ao enviar seu documento, tente novamente mais tarde";
+        throw new InstitutionCommunicationException(
+                "Não foi possível enviar o documento por e-mail. Tente novamente mais tarde."
+        );
     }
 
 }
