@@ -1,7 +1,6 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
-import br.ueg.tc.apiai.service.AiService;
-import br.ueg.tc.pipa_integrator.ai.AIClient;
+import br.ueg.tc.pipa_integrator.ai.AiInferenceClient;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
 import br.ueg.tc.pipa_integrator.exceptions.institution.InstitutionCommunicationException;
@@ -53,7 +52,7 @@ import static org.apache.hc.client5.http.utils.DateUtils.formatDate;
 public class TeacherService extends InstitutionService {
 
     @Autowired
-    private AiService<AIClient> aiService;
+    private AiInferenceClient aiInferenceClient;
 
     @Autowired
     private IEmailService emailService;
@@ -314,7 +313,7 @@ public class TeacherService extends InstitutionService {
                         "\n Entrada: " +
                         studentName;
 
-        studentName = aiService.sendPrompt(question);
+        studentName = aiInferenceClient.complete(question);
         return studentName;
     }
 
@@ -326,7 +325,7 @@ public class TeacherService extends InstitutionService {
                         "\n Entrada: " +
                         course;
 
-        course = aiService.sendPrompt(question);
+        course = aiInferenceClient.complete(question);
         return course;
     }
 

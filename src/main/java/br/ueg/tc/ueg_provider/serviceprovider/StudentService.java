@@ -1,7 +1,6 @@
 package br.ueg.tc.ueg_provider.serviceprovider;
 
-import br.ueg.tc.apiai.service.AiService;
-import br.ueg.tc.pipa_integrator.ai.AIClient;
+import br.ueg.tc.pipa_integrator.ai.AiInferenceClient;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderClass;
 import br.ueg.tc.pipa_integrator.annotations.ServiceProviderMethod;
 import br.ueg.tc.pipa_integrator.enums.WeekDay;
@@ -50,7 +49,7 @@ import static br.ueg.tc.ueg_provider.enums.DocEnum.FREQUENCY_RECORD;
 public class StudentService extends InstitutionService {
 
     @Autowired
-    private AiService<AIClient> aiService;
+    private AiInferenceClient aiInferenceClient;
 
     @Autowired
     private IEmailService emailService;
@@ -541,7 +540,7 @@ public class StudentService extends InstitutionService {
                 "\n Entrada: " +
                 discipline;
 
-        discipline = aiService.sendPrompt(disciplineNameResponse);
+        discipline = aiInferenceClient.complete(disciplineNameResponse);
         return discipline;
     }
 
@@ -558,11 +557,11 @@ public class StudentService extends InstitutionService {
                 "\n Entrada: " +
                 semester;
 
-        return aiService.sendPrompt(semesterPrompt);
+        return aiInferenceClient.complete(semesterPrompt);
     }
 
     private String getWeekByValue(String weekDay) {
-        return aiService.sendPrompt(AIApi.startWeekNameQuestion + LocalDateTime.now() + AIApi.endWeekNameQuestion + weekDay);
+        return aiInferenceClient.complete(AIApi.startWeekNameQuestion + LocalDateTime.now() + AIApi.endWeekNameQuestion + weekDay);
     }
 
     private UserDataUEG getStudentData(Set<ParameterValue> parameterValues) {
