@@ -275,14 +275,16 @@ public class StudentService extends InstitutionService {
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
-                disciplineToGetSchedule = getDisciplineNameResponse(disciplineToGetSchedule, entityString);
+                Formatter formatter = new Formatter();
+                var disciplines = converterUEG.getDisciplinesWithScheduleFromJson(
+                        (JsonArray) JsonParser.parseString(entityString));
+                disciplineToGetSchedule = getDisciplineNameResponse(disciplineToGetSchedule,
+                        formatter.formatDiscipline(disciplines == null ? List.of() : disciplines));
                 if (Objects.equals(disciplineToGetSchedule, "NENHUMA")) {
                     return "Você não tem aulas dessa matéria";
                 }
-                Formatter formatter = new Formatter();
-                return formatter.formatSchedule(formatter.scheduleByDisciplineName(disciplineToGetSchedule, converterUEG.getDisciplinesWithScheduleFromJson
-                        ((JsonArray) JsonParser.parseString(entityString)))
-                );
+                return formatter.formatSchedule(formatter.scheduleByDisciplineName(
+                        disciplineToGetSchedule, disciplines));
             } else
                 throw new InstitutionServiceException("Ocorreu um problema na obtenção do horario, tente novamente mais tarde");
 
@@ -307,15 +309,15 @@ public class StudentService extends InstitutionService {
             if (responseOK(httpResponse)) {
                 String entityString = EntityUtils.toString(entity);
                 if (entityString == null || entityString.isEmpty()) return null;
-                discipline = getDisciplineNameResponse(discipline, entityString);
+                Formatter formatter = new Formatter();
+                var disciplines = converterUEG.getDisciplinesWithAbsencesFromJson(
+                        (JsonArray) JsonParser.parseString(entityString));
+                discipline = getDisciplineNameResponse(discipline,
+                        formatter.formatDiscipline(disciplines == null ? List.of() : disciplines));
                 if (Objects.equals(discipline, "NENHUMA")) {
                     return "Você não tem faltas nessa matéria";
                 }
-                Formatter formatter = new Formatter();
-                return formatter.formatAbsence(formatter.absencesByDisciplineName(discipline,
-                        converterUEG.getDisciplinesWithAbsencesFromJson(
-                                ((JsonArray) JsonParser.parseString(entityString)))
-                ));
+                return formatter.formatAbsence(formatter.absencesByDisciplineName(discipline, disciplines));
             } else
                 throw new InstitutionServiceException("Não foi possível se comunicar com o servidor da UEG," +
                         " tente novamente mais tarde");

@@ -119,7 +119,7 @@ public class Formatter {
     }
 
 
-    public String formatDiscipline(List<IDiscipline> disciplines) {
+    public String formatDiscipline(List<? extends IDiscipline> disciplines) {
         StringBuilder stringBuilder = new StringBuilder();
         disciplines.forEach(discipline -> {
             stringBuilder
